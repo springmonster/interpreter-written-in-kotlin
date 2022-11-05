@@ -20,9 +20,14 @@ enum class TOKEN(var value: String) {
     RPAREN(")"),
     LBRACE("{"),
     RBRACE("}"),
+    COMMA(","),
 
-    FUNCTION("func"),
     LET("let"),
+    FUNCTION("fn"),
+    TRUE("true"),
+    FALSE("false"),
+    IF("if"),
+    ELSE("else"),
     RETURN("return"),
 
     ILLEGAL("ILLEGAL"),
@@ -33,6 +38,10 @@ val keywordsMap: Map<String, TOKEN> =
     mapOf(
         Pair("let", TOKEN.LET),
         Pair("int", TOKEN.INT),
-        Pair("func", TOKEN.FUNCTION),
-        Pair("return", TOKEN.RETURN)
+        Pair("fn", TOKEN.FUNCTION),
+        Pair("true", TOKEN.TRUE),
+        Pair("false", TOKEN.FALSE),
+        Pair("if", TOKEN.IF),
+        Pair("else", TOKEN.ELSE),
+        Pair("return", TOKEN.RETURN),
     )

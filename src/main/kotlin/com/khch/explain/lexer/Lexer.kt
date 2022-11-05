@@ -44,6 +44,7 @@ class Lexer {
             ')' -> token = TOKEN.RPAREN
             '{' -> token = TOKEN.LBRACE
             '}' -> token = TOKEN.RBRACE
+            ',' -> token = TOKEN.COMMA
             CONST_EOF -> token = TOKEN.EOF
             else -> {
                 if (isLetter(ch)) {
