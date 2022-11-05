@@ -12,8 +12,8 @@ fun main() {
     lexer.new(input)
 
     var token = lexer.analyze()
-
     println(token.name + " -> " + token.value)
+
     while (token != TOKEN.EOF) {
         token = lexer.analyze()
         println(token.name + " -> " + token.value)

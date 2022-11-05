@@ -18,7 +18,7 @@ class Lexer {
         readChar()
     }
 
-    fun readChar() {
+    private fun readChar() {
         ch = if (nextPosition >= str.length) {
             CONST_EOF
         } else {
@@ -95,17 +95,17 @@ class Lexer {
         return str.substring(position, currentPosition)
     }
 
-    fun eatWhitespace() {
+    private fun eatWhitespace() {
         if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t') {
             readChar()
         }
     }
 
-    fun isLetter(ch: Char): Boolean {
-        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+    private fun isLetter(ch: Char): Boolean {
+        return ch in 'a'..'z' || ch in 'A'..'Z' || ch == '_'
     }
 
-    fun isDigit(ch: Char): Boolean {
-        return '0' <= ch && ch <= '9'
+    private fun isDigit(ch: Char): Boolean {
+        return ch in '0'..'9'
     }
 }
