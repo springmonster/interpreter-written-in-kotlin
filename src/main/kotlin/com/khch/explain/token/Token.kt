@@ -1,6 +1,6 @@
 package com.khch.explain.token
 
-const val CONST_EOF = (0).toChar()
+const val CONST_EOF = '\u0000'
 
 enum class TOKEN(var value: String) {
     //
@@ -42,7 +42,6 @@ enum class TOKEN(var value: String) {
 val keywordsMap: Map<String, TOKEN> =
     mapOf(
         Pair("let", TOKEN.LET),
-        Pair("int", TOKEN.INT),
         Pair("fn", TOKEN.FUNCTION),
         Pair("true", TOKEN.TRUE),
         Pair("false", TOKEN.FALSE),

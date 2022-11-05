@@ -1,21 +1,20 @@
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.TOKEN
+import java.util.*
 
 fun main() {
-    val input = """
-        let five = 5;
-        let ten = 10;
-    """.trimIndent()
+    val sc = Scanner(System.`in`)
+    println("Please input something!")
 
-    val lexer = Lexer()
+    while (true) {
+        val lexer = Lexer()
+        lexer.new(sc.nextLine())
 
-    lexer.new(input)
+        var analyze: TOKEN = lexer.analyze()
 
-    var token = lexer.analyze()
-    println(token.name + " -> " + token.value)
-
-    while (token != TOKEN.EOF) {
-        token = lexer.analyze()
-        println(token.name + " -> " + token.value)
+        while (analyze != TOKEN.EOF) {
+            println(analyze.name + " -> " + analyze.value)
+            analyze = lexer.analyze()
+        }
     }
 }
