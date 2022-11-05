@@ -17,6 +17,9 @@ internal class LexerTest {
         let result = add(five, ten);
         !-/*5;
         5<10>5;
+        if (5 < 10) {return true;
+        } else {return false;
+        }
         """.trimIndent()
 
         val expected = listOf(
@@ -68,6 +71,23 @@ internal class LexerTest {
             Pair("GT", ">"),
             Pair("INT", "5"),
             Pair("SEMICOLON", ";"),
+            Pair("IF", "if"),
+            Pair("LPAREN", "("),
+            Pair("INT", "5"),
+            Pair("LT", "<"),
+            Pair("INT", "10"),
+            Pair("RPAREN", ")"),
+            Pair("LBRACE", "{"),
+            Pair("RETURN", "return"),
+            Pair("TRUE", "true"),
+            Pair("SEMICOLON", ";"),
+            Pair("RBRACE", "}"),
+            Pair("ELSE", "else"),
+            Pair("LBRACE", "{"),
+            Pair("RETURN", "return"),
+            Pair("FALSE", "false"),
+            Pair("SEMICOLON", ";"),
+            Pair("RBRACE", "}"),
             Pair("EOF", CONST_EOF.toString()),
         )
 
