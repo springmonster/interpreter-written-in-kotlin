@@ -5,7 +5,9 @@ const val CONST_EOF = (0).toChar()
 enum class TOKEN(var value: String) {
     //
     IDENT(""),
-    EQUALS("="),
+    ASSIGN("="),
+    EQ("=="),
+    NOT_EQ("!="),
     INT("int"),
 
     SEMICOLON(";"),

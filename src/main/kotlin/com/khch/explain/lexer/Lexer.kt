@@ -34,7 +34,28 @@ class Lexer {
         eatWhitespace()
 
         when (ch) {
-            '=' -> token = TOKEN.EQUALS
+            '=' -> {
+                if (watchNextChar() == '=') {
+                    val currentChar = ch
+                    readChar()
+                    token = TOKEN.EQ
+                    token.value = currentChar.toString().plus(ch)
+                } else {
+                    token = TOKEN.ASSIGN
+                }
+            }
+
+            '!' -> {
+                if (watchNextChar() == '=') {
+                    val currentChar = ch
+                    readChar()
+                    token = TOKEN.NOT_EQ
+                    token.value = currentChar.toString().plus(ch)
+                } else {
+                    token = TOKEN.EXCLAMATION
+                }
+            }
+
             ';' -> token = TOKEN.SEMICOLON
             '+' -> token = TOKEN.ADD
             '-' -> token = TOKEN.MINUS
@@ -45,7 +66,6 @@ class Lexer {
             '{' -> token = TOKEN.LBRACE
             '}' -> token = TOKEN.RBRACE
             ',' -> token = TOKEN.COMMA
-            '!' -> token = TOKEN.EXCLAMATION
             '>' -> token = TOKEN.GT
             '<' -> token = TOKEN.LT
             CONST_EOF -> token = TOKEN.EOF
@@ -62,6 +82,14 @@ class Lexer {
         readChar()
 
         return token
+    }
+
+    private fun watchNextChar(): Char {
+        return if (nextPosition >= str.length) {
+            CONST_EOF
+        } else {
+            str[nextPosition]
+        }
     }
 
     private fun getNumber(): TOKEN {

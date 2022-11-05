@@ -20,22 +20,24 @@ internal class LexerTest {
         if (5 < 10) {return true;
         } else {return false;
         }
+        10 == 10;
+        10 != 9;
         """.trimIndent()
 
         val expected = listOf(
             Pair("LET", "let"),
             Pair("IDENT", "five"),
-            Pair("EQUALS", "="),
+            Pair("ASSIGN", "="),
             Pair("INT", "5"),
             Pair("SEMICOLON", ";"),
             Pair("LET", "let"),
             Pair("IDENT", "ten"),
-            Pair("EQUALS", "="),
+            Pair("ASSIGN", "="),
             Pair("INT", "10"),
             Pair("SEMICOLON", ";"),
             Pair("LET", "let"),
             Pair("IDENT", "add"),
-            Pair("EQUALS", "="),
+            Pair("ASSIGN", "="),
             Pair("FUNCTION", "fn"),
             Pair("LPAREN", "("),
             Pair("IDENT", "x"),
@@ -51,7 +53,7 @@ internal class LexerTest {
             Pair("SEMICOLON", ";"),
             Pair("LET", "let"),
             Pair("IDENT", "result"),
-            Pair("EQUALS", "="),
+            Pair("ASSIGN", "="),
             Pair("IDENT", "add"),
             Pair("LPAREN", "("),
             Pair("IDENT", "five"),
@@ -88,6 +90,14 @@ internal class LexerTest {
             Pair("FALSE", "false"),
             Pair("SEMICOLON", ";"),
             Pair("RBRACE", "}"),
+            Pair("INT", "10"),
+            Pair("EQ", "=="),
+            Pair("INT", "10"),
+            Pair("SEMICOLON", ";"),
+            Pair("INT", "10"),
+            Pair("NOT_EQ", "!="),
+            Pair("INT", "9"),
+            Pair("SEMICOLON", ";"),
             Pair("EOF", CONST_EOF.toString()),
         )
 
