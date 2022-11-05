@@ -45,6 +45,9 @@ class Lexer {
             '{' -> token = TOKEN.LBRACE
             '}' -> token = TOKEN.RBRACE
             ',' -> token = TOKEN.COMMA
+            '!' -> token = TOKEN.EXCLAMATION
+            '>' -> token = TOKEN.GT
+            '<' -> token = TOKEN.LT
             CONST_EOF -> token = TOKEN.EOF
             else -> {
                 if (isLetter(ch)) {
@@ -63,7 +66,7 @@ class Lexer {
 
     private fun getNumber(): TOKEN {
         val readNumber = readNumber()
-        val token: TOKEN = TOKEN.IDENT
+        val token: TOKEN = TOKEN.INT
         token.value = readNumber
         return token
     }

@@ -10,16 +10,25 @@ internal class LexerTest {
 
     @Test
     fun analyze() {
+        val input = """
+        let five = 5;
+        let ten = 10;
+        let add = fn(x, y) { x+y;};
+        let result = add(five, ten);
+        !-/*5;
+        5<10>5;
+        """.trimIndent()
+
         val expected = listOf(
             Pair("LET", "let"),
             Pair("IDENT", "five"),
             Pair("EQUALS", "="),
-            Pair("IDENT", "5"),
+            Pair("INT", "5"),
             Pair("SEMICOLON", ";"),
             Pair("LET", "let"),
             Pair("IDENT", "ten"),
             Pair("EQUALS", "="),
-            Pair("IDENT", "10"),
+            Pair("INT", "10"),
             Pair("SEMICOLON", ";"),
             Pair("LET", "let"),
             Pair("IDENT", "add"),
@@ -37,31 +46,30 @@ internal class LexerTest {
             Pair("SEMICOLON", ";"),
             Pair("RBRACE", "}"),
             Pair("SEMICOLON", ";"),
+            Pair("LET", "let"),
+            Pair("IDENT", "result"),
+            Pair("EQUALS", "="),
+            Pair("IDENT", "add"),
+            Pair("LPAREN", "("),
+            Pair("IDENT", "five"),
+            Pair("COMMA", ","),
+            Pair("IDENT", "ten"),
+            Pair("RPAREN", ")"),
+            Pair("SEMICOLON", ";"),
+            Pair("EXCLAMATION", "!"),
+            Pair("MINUS", "-"),
+            Pair("SLASH", "/"),
+            Pair("ASTERISK", "*"),
+            Pair("INT", "5"),
+            Pair("SEMICOLON", ";"),
+            Pair("INT", "5"),
+            Pair("LT", "<"),
+            Pair("INT", "10"),
+            Pair("GT", ">"),
+            Pair("INT", "5"),
+            Pair("SEMICOLON", ";"),
             Pair("EOF", CONST_EOF.toString()),
         )
-
-//        val input = """
-//        let five = 5;
-//        let ten = 10;
-//        let add = fn(x, y) {
-//            x + y;
-//        };
-//        let result = add(five, ten);
-//        !-/*5;
-//        5 < 10 > 5;
-//        if (5 < 10) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    """.trimIndent()
-
-        val input = """
-        let five = 5;
-        let ten = 10;
-        let add = fn(x, y) { x+y;
-        };
-    """.trimIndent()
 
         lexer.new(input)
 

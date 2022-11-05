@@ -15,12 +15,15 @@ enum class TOKEN(var value: String) {
     MINUS("-"),
     ASTERISK("*"),
     SLASH("/"),
+    GT(">"),
+    LT("<"),
 
     LPAREN("("),
     RPAREN(")"),
     LBRACE("{"),
     RBRACE("}"),
     COMMA(","),
+    EXCLAMATION("!"),
 
     LET("let"),
     FUNCTION("fn"),
