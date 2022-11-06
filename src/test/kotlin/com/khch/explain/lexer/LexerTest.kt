@@ -104,7 +104,7 @@ internal class LexerTest {
         lexer.new(input)
 
         expected.forEach {
-            val token = lexer.analyze()
+            val token = lexer.nextToken()
             println(token.name + " -> " + token.value)
             assertEquals(it.first, token.name)
             assertEquals(it.second, token.value)

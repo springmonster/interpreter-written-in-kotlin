@@ -10,11 +10,11 @@ fun main() {
         val lexer = Lexer()
         lexer.new(sc.nextLine())
 
-        var analyze: TOKEN = lexer.analyze()
+        var analyze: TOKEN = lexer.nextToken()
 
         while (analyze != TOKEN.EOF) {
             println(analyze.name + " -> " + analyze.value)
-            analyze = lexer.analyze()
+            analyze = lexer.nextToken()
         }
     }
 }

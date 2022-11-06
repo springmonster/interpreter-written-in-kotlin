@@ -14,7 +14,6 @@ class Lexer {
 
     fun new(input: String) {
         str = input
-
         readChar()
     }
 
@@ -28,7 +27,7 @@ class Lexer {
         nextPosition++
     }
 
-    fun analyze(): TOKEN {
+    fun nextToken(): TOKEN {
         var token = TOKEN.EOF
 
         eatWhitespace()
