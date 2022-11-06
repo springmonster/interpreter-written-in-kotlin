@@ -13,7 +13,7 @@ fun main() {
         var analyze: TOKEN = lexer.nextToken()
 
         while (analyze != TOKEN.EOF) {
-            println(analyze.name + " -> " + analyze.value)
+            println(analyze.name + " -> " + analyze.literal)
             analyze = lexer.nextToken()
         }
     }

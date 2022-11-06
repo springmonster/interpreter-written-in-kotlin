@@ -1,5 +1,7 @@
 package com.khch.explain.ast
 
+import com.khch.explain.ast.interfaces.Statement
+
 class Ast {
     val statements = mutableListOf<Statement>()
 

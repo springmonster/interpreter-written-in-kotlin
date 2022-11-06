@@ -38,7 +38,7 @@ class Lexer {
                     val currentChar = ch
                     readChar()
                     token = TOKEN.EQ
-                    token.value = currentChar.toString().plus(ch)
+                    token.literal = currentChar.toString().plus(ch)
                 } else {
                     token = TOKEN.ASSIGN
                 }
@@ -49,7 +49,7 @@ class Lexer {
                     val currentChar = ch
                     readChar()
                     token = TOKEN.NOT_EQ
-                    token.value = currentChar.toString().plus(ch)
+                    token.literal = currentChar.toString().plus(ch)
                 } else {
                     token = TOKEN.EXCLAMATION
                 }
@@ -94,7 +94,7 @@ class Lexer {
     private fun getNumber(): TOKEN {
         val readNumber = readNumber()
         val token: TOKEN = TOKEN.INT
-        token.value = readNumber
+        token.literal = readNumber
         return token
     }
 
@@ -105,7 +105,7 @@ class Lexer {
             token = keywordsMap[readLetter]!!
         } else {
             token = TOKEN.IDENT
-            token.value = readLetter
+            token.literal = readLetter
         }
         return token
     }

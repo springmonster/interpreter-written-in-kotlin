@@ -1,8 +1,9 @@
 package com.khch.explain.parse
 
 import com.khch.explain.ast.Ast
+import com.khch.explain.ast.Identifier
 import com.khch.explain.ast.LetStatement
-import com.khch.explain.ast.Statement
+import com.khch.explain.ast.interfaces.Statement
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.TOKEN
 
@@ -24,7 +25,7 @@ class Parser {
         nextToken = this.lexer.nextToken()
     }
 
-    fun parseProgram(): Ast? {
+    fun parseProgram(): Ast {
         while (currentToken != TOKEN.EOF) {
             val parseStatement = parseStatement()
             if (parseStatement != null) {
@@ -51,6 +52,8 @@ class Parser {
         if (!expectNextTokenIs(TOKEN.IDENT)) {
             return null
         }
+
+        letStatement.name = Identifier(currentToken, currentToken.literal)
 
         if (!expectNextTokenIs(TOKEN.ASSIGN)) {
             return null

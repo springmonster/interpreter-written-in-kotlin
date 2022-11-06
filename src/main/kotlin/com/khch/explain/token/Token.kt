@@ -2,7 +2,7 @@ package com.khch.explain.token
 
 const val CONST_EOF = '\u0000'
 
-enum class TOKEN(var value: String) {
+enum class TOKEN(var literal: String) {
     //
     IDENT(""),
     ASSIGN("="),
