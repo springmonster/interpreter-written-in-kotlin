@@ -28,15 +28,16 @@ internal class ParserTest {
         val tests = listOf("x", "y", "foobar")
         tests.forEachIndexed { index, s ->
             run {
-                val ast = ast.statements[index]
+                val statement = ast.statements[index]
+                val letStatement = statement as LetStatement
 
-                val tokenLiteral = ast.tokenLiteral()
-                println("statement tokenLiteral $tokenLiteral")
+                val nameTokenLiteral = letStatement.name?.tokenLiteral()
+                val nameValue = letStatement.name?.value
 
-                val letStatement = ast as LetStatement
-                val nameTokenLiteral = letStatement.name.tokenLiteral()
-                val nameValue = letStatement.name.value
+                println("nameTokenLiteral $nameTokenLiteral")
+                println("nameValue $nameValue")
 
+                assertEquals(s, nameTokenLiteral)
                 assertEquals(s, nameValue)
             }
         }

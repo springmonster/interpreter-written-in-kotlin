@@ -1,5 +1,5 @@
 import com.khch.explain.lexer.Lexer
-import com.khch.explain.token.TOKEN
+import com.khch.explain.token.Token
 import java.util.*
 
 fun main() {
@@ -10,10 +10,10 @@ fun main() {
         val lexer = Lexer()
         lexer.new(sc.nextLine())
 
-        var analyze: TOKEN = lexer.nextToken()
+        var analyze: Token = lexer.nextToken()
 
-        while (analyze != TOKEN.EOF) {
-            println(analyze.name + " -> " + analyze.literal)
+        while (analyze.tokenType != Token.EOF) {
+            println(analyze.tokenType + " -> " + analyze.literal)
             analyze = lexer.nextToken()
         }
     }

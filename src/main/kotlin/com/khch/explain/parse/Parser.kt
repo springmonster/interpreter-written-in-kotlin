@@ -5,11 +5,11 @@ import com.khch.explain.ast.Identifier
 import com.khch.explain.ast.LetStatement
 import com.khch.explain.ast.interfaces.Statement
 import com.khch.explain.lexer.Lexer
-import com.khch.explain.token.TOKEN
+import com.khch.explain.token.Token
 
 class Parser {
-    private var currentToken: TOKEN = TOKEN.EOF
-    private var nextToken: TOKEN = TOKEN.EOF
+    var currentToken: Token = Token(null, null)
+    var nextToken: Token = Token(null, null)
     lateinit var lexer: Lexer
     var ast = Ast()
 
@@ -26,7 +26,7 @@ class Parser {
     }
 
     fun parseProgram(): Ast {
-        while (currentToken != TOKEN.EOF) {
+        while (currentToken.tokenType != Token.EOF) {
             val parseStatement = parseStatement()
             if (parseStatement != null) {
                 ast.statements.add(parseStatement)
@@ -37,8 +37,8 @@ class Parser {
     }
 
     private fun parseStatement(): Statement? {
-        return when (currentToken) {
-            TOKEN.LET -> {
+        return when (currentToken.tokenType) {
+            Token.LET -> {
                 return parseLetStatement() as Statement
             }
 
@@ -49,33 +49,33 @@ class Parser {
     private fun parseLetStatement(): LetStatement? {
         val letStatement = LetStatement(currentToken)
 
-        if (!expectNextTokenIs(TOKEN.IDENT)) {
+        if (!expectNextTokenIs(Token.IDENT)) {
             return null
         }
 
-        letStatement.name = Identifier(currentToken, currentToken.literal)
+        letStatement.name = Identifier(currentToken.literal!!, currentToken)
 
-        if (!expectNextTokenIs(TOKEN.ASSIGN)) {
+        if (!expectNextTokenIs(Token.ASSIGN)) {
             return null
         }
 
-        while (!currentTokenIs(TOKEN.SEMICOLON)) {
+        while (!currentTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
 
         return letStatement
     }
 
-    private fun currentTokenIs(token: TOKEN): Boolean {
-        return currentToken == token
+    private fun currentTokenIs(tokenType: String): Boolean {
+        return currentToken.tokenType.equals(tokenType)
     }
 
-    private fun nextTokenIs(token: TOKEN): Boolean {
-        return nextToken == token
+    private fun nextTokenIs(tokenType: String): Boolean {
+        return nextToken.tokenType == tokenType
     }
 
-    private fun expectNextTokenIs(token: TOKEN): Boolean {
-        return if (nextTokenIs(token)) {
+    private fun expectNextTokenIs(tokenType: String): Boolean {
+        return if (nextTokenIs(tokenType)) {
             nextToken()
             true
         } else {

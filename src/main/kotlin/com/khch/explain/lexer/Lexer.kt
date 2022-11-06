@@ -1,7 +1,7 @@
 package com.khch.explain.lexer
 
 import com.khch.explain.token.CONST_EOF
-import com.khch.explain.token.TOKEN
+import com.khch.explain.token.Token
 import com.khch.explain.token.keywordsMap
 
 class Lexer {
@@ -27,8 +27,8 @@ class Lexer {
         nextPosition++
     }
 
-    fun nextToken(): TOKEN {
-        var token = TOKEN.EOF
+    fun nextToken(): Token {
+        var token: Token = Token(null, null)
 
         eatWhitespace()
 
@@ -37,10 +37,11 @@ class Lexer {
                 if (watchNextChar() == '=') {
                     val currentChar = ch
                     readChar()
-                    token = TOKEN.EQ
+                    token.tokenType = Token.EQ
                     token.literal = currentChar.toString().plus(ch)
                 } else {
-                    token = TOKEN.ASSIGN
+                    token.tokenType = Token.ASSIGN
+                    token.literal = ch.toString()
                 }
             }
 
@@ -48,33 +49,32 @@ class Lexer {
                 if (watchNextChar() == '=') {
                     val currentChar = ch
                     readChar()
-                    token = TOKEN.NOT_EQ
+                    token.tokenType = Token.NOT_EQ
                     token.literal = currentChar.toString().plus(ch)
                 } else {
-                    token = TOKEN.EXCLAMATION
+                    token.tokenType = Token.EXCLAMATION
+                    token.literal = ch.toString()
                 }
             }
 
-            ';' -> token = TOKEN.SEMICOLON
-            '+' -> token = TOKEN.ADD
-            '-' -> token = TOKEN.MINUS
-            '*' -> token = TOKEN.ASTERISK
-            '/' -> token = TOKEN.SLASH
-            '(' -> token = TOKEN.LPAREN
-            ')' -> token = TOKEN.RPAREN
-            '{' -> token = TOKEN.LBRACE
-            '}' -> token = TOKEN.RBRACE
-            ',' -> token = TOKEN.COMMA
-            '>' -> token = TOKEN.GT
-            '<' -> token = TOKEN.LT
-            CONST_EOF -> token = TOKEN.EOF
+            ';' -> token = Token(Token.SEMICOLON, ch.toString())
+            '+' -> token = Token(Token.ADD, ch.toString())
+            '-' -> token = Token(Token.MINUS, ch.toString())
+            '*' -> token = Token(Token.ASTERISK, ch.toString())
+            '/' -> token = Token(Token.SLASH, ch.toString())
+            '(' -> token = Token(Token.LPAREN, ch.toString())
+            ')' -> token = Token(Token.RPAREN, ch.toString())
+            '{' -> token = Token(Token.LBRACE, ch.toString())
+            '}' -> token = Token(Token.RBRACE, ch.toString())
+            ',' -> token = Token(Token.COMMA, ch.toString())
+            '>' -> token = Token(Token.GT, ch.toString())
+            '<' -> token = Token(Token.LT, ch.toString())
+            CONST_EOF -> token = Token(Token.EOF, ch.toString())
             else -> {
                 if (isLetter(ch)) {
                     return getLetter()
                 } else if (isDigit(ch)) {
                     return getNumber()
-                } else {
-                    TOKEN.ILLEGAL
                 }
             }
         }
@@ -91,20 +91,19 @@ class Lexer {
         }
     }
 
-    private fun getNumber(): TOKEN {
+    private fun getNumber(): Token {
         val readNumber = readNumber()
-        val token: TOKEN = TOKEN.INT
-        token.literal = readNumber
-        return token
+        return Token(Token.INT, readNumber)
     }
 
-    private fun getLetter(): TOKEN {
-        val token: TOKEN
+    private fun getLetter(): Token {
+        val token: Token = Token(null, null)
         val readLetter = readLetter()
         if (keywordsMap.containsKey(readLetter)) {
-            token = keywordsMap[readLetter]!!
+            token.tokenType = keywordsMap[readLetter]!!
+            token.literal = readLetter
         } else {
-            token = TOKEN.IDENT
+            token.tokenType = Token.IDENT
             token.literal = readLetter
         }
         return token

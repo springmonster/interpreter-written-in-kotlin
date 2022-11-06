@@ -1,5 +1,5 @@
 package com.khch.explain.ast.interfaces
 
-interface Expression : Node {
+interface Expression {
     fun expressionNode()
 }

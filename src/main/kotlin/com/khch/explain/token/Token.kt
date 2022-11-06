@@ -2,50 +2,51 @@ package com.khch.explain.token
 
 const val CONST_EOF = '\u0000'
 
-enum class TOKEN(var literal: String) {
-    //
-    IDENT(""),
-    ASSIGN("="),
-    EQ("=="),
-    NOT_EQ("!="),
-    INT("int"),
+class Token(var tokenType: String?, var literal: String?) {
+    companion object {
+        val IDENT = "IDENT"
+        val ASSIGN = "ASSIGN"
+        val INT = "INT"
+        val EQ = "EQ"
+        val NOT_EQ = "NOT_EQ"
 
-    SEMICOLON(";"),
+        val SEMICOLON = "SEMICOLON"
 
-    // 操作符
-    ADD("+"),
-    MINUS("-"),
-    ASTERISK("*"),
-    SLASH("/"),
-    GT(">"),
-    LT("<"),
+        // 操作符
+        val ADD = "ADD"
+        val MINUS = "MINUS"
+        val ASTERISK = "ASTERISK"
+        val SLASH = "SLASH"
+        val GT = "GT"
+        val LT = "LT"
 
-    LPAREN("("),
-    RPAREN(")"),
-    LBRACE("{"),
-    RBRACE("}"),
-    COMMA(","),
-    EXCLAMATION("!"),
+        val LPAREN = "LPAREN"
+        val RPAREN = "RPAREN"
+        val LBRACE = "LBRACE"
+        val RBRACE = "RBRACE"
+        val COMMA = "COMMA"
+        val EXCLAMATION = "EXCLAMATION"
 
-    LET("let"),
-    FUNCTION("fn"),
-    TRUE("true"),
-    FALSE("false"),
-    IF("if"),
-    ELSE("else"),
-    RETURN("return"),
+        val LET = "LET"
+        val FUNCTION = "FUNCTION"
+        val TRUE = "TRUE"
+        val FALSE = "FALSE"
+        val IF = "IF"
+        val ELSE = "ELSE"
+        val RETURN = "RETURN"
 
-    ILLEGAL("ILLEGAL"),
-    EOF(CONST_EOF.toString()),
+        val ILLEGAL = "ILLEGAL"
+        val EOF = "EOF"
+    }
 }
 
-val keywordsMap: Map<String, TOKEN> =
+val keywordsMap: Map<String, String> =
     mapOf(
-        Pair("let", TOKEN.LET),
-        Pair("fn", TOKEN.FUNCTION),
-        Pair("true", TOKEN.TRUE),
-        Pair("false", TOKEN.FALSE),
-        Pair("if", TOKEN.IF),
-        Pair("else", TOKEN.ELSE),
-        Pair("return", TOKEN.RETURN),
+        Pair("let", Token.LET),
+        Pair("fn", Token.FUNCTION),
+        Pair("true", Token.TRUE),
+        Pair("false", Token.FALSE),
+        Pair("if", Token.IF),
+        Pair("else", Token.ELSE),
+        Pair("return", Token.RETURN),
     )

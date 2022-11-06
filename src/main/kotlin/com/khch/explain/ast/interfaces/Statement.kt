@@ -1,5 +1,5 @@
 package com.khch.explain.ast.interfaces
 
-interface Statement : Node {
+interface Statement {
     fun statementNode()
 }
