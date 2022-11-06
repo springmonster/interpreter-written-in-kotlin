@@ -7,8 +7,8 @@ import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.TOKEN
 
 class Parser {
-    var currentToken: TOKEN = TOKEN.EOF
-    var nextToken: TOKEN = TOKEN.EOF
+    private var currentToken: TOKEN = TOKEN.EOF
+    private var nextToken: TOKEN = TOKEN.EOF
     lateinit var lexer: Lexer
     var ast = Ast()
 
@@ -19,7 +19,7 @@ class Parser {
         return this
     }
 
-    fun nextToken() {
+    private fun nextToken() {
         currentToken = nextToken
         nextToken = this.lexer.nextToken()
     }
@@ -35,7 +35,7 @@ class Parser {
         return ast
     }
 
-    fun parseStatement(): Statement? {
+    private fun parseStatement(): Statement? {
         return when (currentToken) {
             TOKEN.LET -> {
                 return parseLetStatement() as Statement
@@ -45,7 +45,7 @@ class Parser {
         }
     }
 
-    fun parseLetStatement(): LetStatement? {
+    private fun parseLetStatement(): LetStatement? {
         val letStatement = LetStatement(currentToken)
 
         if (!expectNextTokenIs(TOKEN.IDENT)) {
@@ -63,15 +63,15 @@ class Parser {
         return letStatement
     }
 
-    fun currentTokenIs(token: TOKEN): Boolean {
+    private fun currentTokenIs(token: TOKEN): Boolean {
         return currentToken == token
     }
 
-    fun nextTokenIs(token: TOKEN): Boolean {
+    private fun nextTokenIs(token: TOKEN): Boolean {
         return nextToken == token
     }
 
-    fun expectNextTokenIs(token: TOKEN): Boolean {
+    private fun expectNextTokenIs(token: TOKEN): Boolean {
         return if (nextTokenIs(token)) {
             nextToken()
             true
