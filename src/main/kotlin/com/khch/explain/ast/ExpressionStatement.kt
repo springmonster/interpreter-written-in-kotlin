@@ -5,10 +5,8 @@ import com.khch.explain.ast.interfaces.Node
 import com.khch.explain.ast.interfaces.Statement
 import com.khch.explain.token.Token
 
-class ReturnStatement(private val token: Token) : Statement, Node {
-    var name: Identifier? = null
-
-    lateinit var value: Expression
+class ExpressionStatement(private val token: Token) : Statement {
+    lateinit var expression: Expression
 
     override fun statementNode() {
     }
@@ -18,6 +16,6 @@ class ReturnStatement(private val token: Token) : Statement, Node {
     }
 
     override fun string(): String {
-        return token.literal + " " + name?.string() + value.string() + ";"
+        TODO("Not yet implemented")
     }
 }

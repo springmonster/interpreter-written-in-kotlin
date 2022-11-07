@@ -14,7 +14,5 @@ C
 gradlew,5\b\5bbfa66edb4db3c7c33c5181f43510990d3307f9
 @
 build.gradle.kts,d\b\dbcff70658daf80b53ce624f6adcaa529df5ed8d
-[
-+src/main/kotlin/com/khch/explain/ast/Ast.kt,8\8\88003a229c9419f40d7914e898b2a9be1002bb72
 _
 /src/main/kotlin/com/khch/explain/lexer/Lexer.kt,f\0\f0cf727c59b904e72d45fe0ad7de3dff44340094
