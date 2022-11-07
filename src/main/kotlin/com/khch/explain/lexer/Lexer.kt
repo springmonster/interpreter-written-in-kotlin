@@ -6,9 +6,9 @@ import com.khch.explain.token.keywordsMap
 
 class Lexer {
     // 代表EOF
-    var ch: Char = CONST_EOF
-    var currentPosition: Int = 0
-    var nextPosition: Int = 0
+    private var ch: Char = CONST_EOF
+    private var currentPosition: Int = 0
+    private var nextPosition: Int = 0
 
     var str: String = ""
 
@@ -28,48 +28,44 @@ class Lexer {
     }
 
     fun nextToken(): Token {
-        var token: Token = Token(null, null)
+        var token: Token = Token()
 
         eatWhitespace()
 
         when (ch) {
             '=' -> {
-                if (watchNextChar() == '=') {
+                token = if (watchNextChar() == '=') {
                     val currentChar = ch
                     readChar()
-                    token.tokenType = Token.EQ
-                    token.literal = currentChar.toString().plus(ch)
+                    createToken(Token.EQ, currentChar.toString().plus(ch))
                 } else {
-                    token.tokenType = Token.ASSIGN
-                    token.literal = ch.toString()
+                    createToken(Token.ASSIGN, ch)
                 }
             }
 
             '!' -> {
-                if (watchNextChar() == '=') {
+                token = if (watchNextChar() == '=') {
                     val currentChar = ch
                     readChar()
-                    token.tokenType = Token.NOT_EQ
-                    token.literal = currentChar.toString().plus(ch)
+                    createToken(Token.NOT_EQ, currentChar.toString().plus(ch))
                 } else {
-                    token.tokenType = Token.EXCLAMATION
-                    token.literal = ch.toString()
+                    createToken(Token.EXCLAMATION, ch)
                 }
             }
 
-            ';' -> token = Token(Token.SEMICOLON, ch.toString())
-            '+' -> token = Token(Token.ADD, ch.toString())
-            '-' -> token = Token(Token.MINUS, ch.toString())
-            '*' -> token = Token(Token.ASTERISK, ch.toString())
-            '/' -> token = Token(Token.SLASH, ch.toString())
-            '(' -> token = Token(Token.LPAREN, ch.toString())
-            ')' -> token = Token(Token.RPAREN, ch.toString())
-            '{' -> token = Token(Token.LBRACE, ch.toString())
-            '}' -> token = Token(Token.RBRACE, ch.toString())
-            ',' -> token = Token(Token.COMMA, ch.toString())
-            '>' -> token = Token(Token.GT, ch.toString())
-            '<' -> token = Token(Token.LT, ch.toString())
-            CONST_EOF -> token = Token(Token.EOF, ch.toString())
+            ';' -> token = createToken(Token.SEMICOLON, ch)
+            '+' -> token = createToken(Token.ADD, ch)
+            '-' -> token = createToken(Token.MINUS, ch)
+            '*' -> token = createToken(Token.ASTERISK, ch)
+            '/' -> token = createToken(Token.SLASH, ch)
+            '(' -> token = createToken(Token.LPAREN, ch)
+            ')' -> token = createToken(Token.RPAREN, ch)
+            '{' -> token = createToken(Token.LBRACE, ch)
+            '}' -> token = createToken(Token.RBRACE, ch)
+            ',' -> token = createToken(Token.COMMA, ch)
+            '>' -> token = createToken(Token.GT, ch)
+            '<' -> token = createToken(Token.LT, ch)
+            CONST_EOF -> token = createToken(Token.EOF, ch)
             else -> {
                 if (isLetter(ch)) {
                     return getLetter()
@@ -97,16 +93,12 @@ class Lexer {
     }
 
     private fun getLetter(): Token {
-        val token: Token = Token(null, null)
         val readLetter = readLetter()
-        if (keywordsMap.containsKey(readLetter)) {
-            token.tokenType = keywordsMap[readLetter]!!
-            token.literal = readLetter
+        return if (keywordsMap.containsKey(readLetter)) {
+            createToken(keywordsMap[readLetter]!!, readLetter)
         } else {
-            token.tokenType = Token.IDENT
-            token.literal = readLetter
+            createToken(Token.IDENT, readLetter)
         }
-        return token
     }
 
     private fun readLetter(): String {
@@ -137,5 +129,13 @@ class Lexer {
 
     private fun isDigit(ch: Char): Boolean {
         return ch in '0'..'9'
+    }
+
+    private fun createToken(tokenType: String, ch: Char): Token {
+        return Token(tokenType, ch.toString())
+    }
+
+    private fun createToken(tokenType: String, chStr: String): Token {
+        return Token(tokenType, chStr)
     }
 }

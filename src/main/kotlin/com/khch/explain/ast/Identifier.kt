@@ -9,6 +9,6 @@ class Identifier(val value: String, private val token: Token) : Expression, Node
     }
 
     override fun tokenLiteral(): String {
-        return token.literal!!
+        return token.literal
     }
 }

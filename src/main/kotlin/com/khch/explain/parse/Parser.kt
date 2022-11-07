@@ -8,8 +8,8 @@ import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
 
 class Parser {
-    var currentToken: Token = Token(null, null)
-    var nextToken: Token = Token(null, null)
+    var currentToken: Token = Token()
+    var nextToken: Token = Token()
     lateinit var lexer: Lexer
     var ast = Ast()
 
@@ -53,7 +53,7 @@ class Parser {
             return null
         }
 
-        letStatement.name = Identifier(currentToken.literal!!, currentToken)
+        letStatement.name = Identifier(currentToken.literal, currentToken)
 
         if (!expectNextTokenIs(Token.ASSIGN)) {
             return null
@@ -67,7 +67,7 @@ class Parser {
     }
 
     private fun currentTokenIs(tokenType: String): Boolean {
-        return currentToken.tokenType.equals(tokenType)
+        return currentToken.tokenType == tokenType
     }
 
     private fun nextTokenIs(tokenType: String): Boolean {

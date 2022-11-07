@@ -14,6 +14,6 @@ class LetStatement(private val token: Token) : Statement, Node {
     }
 
     override fun tokenLiteral(): String {
-        return token.literal!!
+        return token.literal
     }
 }

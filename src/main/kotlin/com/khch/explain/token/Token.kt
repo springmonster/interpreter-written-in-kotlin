@@ -2,41 +2,41 @@ package com.khch.explain.token
 
 const val CONST_EOF = '\u0000'
 
-class Token(var tokenType: String?, var literal: String?) {
+class Token(var tokenType: String = "", var literal: String = "") {
     companion object {
-        val IDENT = "IDENT"
-        val ASSIGN = "ASSIGN"
-        val INT = "INT"
-        val EQ = "EQ"
-        val NOT_EQ = "NOT_EQ"
+        const val IDENT = "IDENT"
+        const val ASSIGN = "ASSIGN"
+        const val INT = "INT"
+        const val EQ = "EQ"
+        const val NOT_EQ = "NOT_EQ"
 
-        val SEMICOLON = "SEMICOLON"
+        const val SEMICOLON = "SEMICOLON"
 
         // 操作符
-        val ADD = "ADD"
-        val MINUS = "MINUS"
-        val ASTERISK = "ASTERISK"
-        val SLASH = "SLASH"
-        val GT = "GT"
-        val LT = "LT"
+        const val ADD = "ADD"
+        const val MINUS = "MINUS"
+        const val ASTERISK = "ASTERISK"
+        const val SLASH = "SLASH"
+        const val GT = "GT"
+        const val LT = "LT"
 
-        val LPAREN = "LPAREN"
-        val RPAREN = "RPAREN"
-        val LBRACE = "LBRACE"
-        val RBRACE = "RBRACE"
-        val COMMA = "COMMA"
-        val EXCLAMATION = "EXCLAMATION"
+        const val LPAREN = "LPAREN"
+        const val RPAREN = "RPAREN"
+        const val LBRACE = "LBRACE"
+        const val RBRACE = "RBRACE"
+        const val COMMA = "COMMA"
+        const val EXCLAMATION = "EXCLAMATION"
 
-        val LET = "LET"
-        val FUNCTION = "FUNCTION"
-        val TRUE = "TRUE"
-        val FALSE = "FALSE"
-        val IF = "IF"
-        val ELSE = "ELSE"
-        val RETURN = "RETURN"
+        const val LET = "LET"
+        const val FUNCTION = "FUNCTION"
+        const val TRUE = "TRUE"
+        const val FALSE = "FALSE"
+        const val IF = "IF"
+        const val ELSE = "ELSE"
+        const val RETURN = "RETURN"
 
-        val ILLEGAL = "ILLEGAL"
-        val EOF = "EOF"
+        const val ILLEGAL = "ILLEGAL"
+        const val EOF = "EOF"
     }
 }
 
