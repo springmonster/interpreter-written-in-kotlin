@@ -1,10 +1,9 @@
 package com.khch.explain.parse
 
-import com.khch.explain.ast.Ast
+import com.khch.explain.ast.ExpressionStatement
 import com.khch.explain.ast.Identifier
 import com.khch.explain.ast.LetStatement
 import com.khch.explain.ast.ReturnStatement
-import com.khch.explain.ast.interfaces.Expression
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
 import org.junit.jupiter.api.Test
@@ -75,8 +74,6 @@ internal class ParserTest {
 
     @Test
     fun testString() {
-        val ast = Ast()
-
         val token = Token()
         token.tokenType = Token.LET
         token.literal = "let"
@@ -98,5 +95,25 @@ internal class ParserTest {
         letStatement.value = ident2
 
         println(letStatement.string())
+    }
+
+    @Test
+    fun testParseExpressions() {
+        val input = """
+            foobar;
+        """.trimIndent()
+
+        val lexer = Lexer()
+        lexer.new(input)
+
+        val parser = Parser()
+        parser.new(lexer)
+
+        val ast = parser.parseProgram();
+
+        val expressionStatement = ast.statements[0] as ExpressionStatement
+        val identifier = expressionStatement.expression as Identifier
+        assertEquals("foobar", identifier.tokenLiteral())
+        assertEquals("foobar", identifier.value)
     }
 }

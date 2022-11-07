@@ -1,23 +1,44 @@
 package com.khch.explain.parse
 
-import com.khch.explain.ast.Ast
-import com.khch.explain.ast.Identifier
-import com.khch.explain.ast.LetStatement
-import com.khch.explain.ast.ReturnStatement
+import com.khch.explain.ast.*
+import com.khch.explain.ast.interfaces.Expression
 import com.khch.explain.ast.interfaces.Statement
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
 
 class Parser {
+    companion object {
+        const val LOWEST = 1
+        const val EQUALS = 2
+        const val LESSGREATER = 3
+        const val SUM = 4
+        const val PRODUCT = 5
+        const val PREFIX = 6
+        const val CALL = 7
+    }
+
     var currentToken: Token = Token()
     var nextToken: Token = Token()
     lateinit var lexer: Lexer
+    private val prefixParseFnMap = mutableMapOf<String, Expression>()
+    private val infixParseFnMap = mutableMapOf<String, Expression>()
     var ast = Ast()
+
+    private fun registerPrefix(tokenType: String, prefixParseFn: Expression) {
+        prefixParseFnMap[tokenType] = prefixParseFn
+    }
+
+    private fun registerInfix(tokenType: String, infixParseFn: Expression) {
+        infixParseFnMap[tokenType] = infixParseFn
+    }
 
     fun new(lexer: Lexer): Parser {
         this.lexer = lexer
         nextToken()
         nextToken()
+
+        registerPrefix(Token.IDENT, parseIdentifier())
+
         return this
     }
 
@@ -47,7 +68,33 @@ class Parser {
                 return parseReturnStatement() as Statement
             }
 
-            else -> null
+            else -> {
+                return parseExpressionStatement() as Statement
+            }
+        }
+    }
+
+    private fun parseExpressionStatement(): ExpressionStatement? {
+        val expression = ExpressionStatement(currentToken)
+        val parsedExpression = parseExpression(LOWEST)
+        if (parsedExpression != null) {
+            expression.expression = parsedExpression
+        } else {
+            expression.expression = Identifier("", Token())
+        }
+
+        while (nextTokenIs(Token.SEMICOLON)) {
+            nextToken()
+        }
+        return expression
+    }
+
+    private fun parseExpression(expression: Int): Expression? {
+        val isPrefixExist = prefixParseFnMap.containsKey(currentToken.tokenType)
+        return if (!isPrefixExist) {
+            null
+        } else {
+            parseIdentifier()
         }
     }
 
@@ -99,5 +146,9 @@ class Parser {
             println("expect token error!")
             false
         }
+    }
+
+    private fun parseIdentifier(): Expression {
+        return Identifier(currentToken.literal, currentToken)
     }
 }

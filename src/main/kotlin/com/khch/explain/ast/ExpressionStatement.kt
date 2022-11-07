@@ -16,6 +16,6 @@ class ExpressionStatement(private val token: Token) : Statement {
     }
 
     override fun string(): String {
-        TODO("Not yet implemented")
+        return "expression"
     }
 }

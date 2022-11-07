@@ -8,6 +8,7 @@ import com.khch.explain.token.Token
 class LetStatement(private val token: Token) : Statement, Node {
     var name: Identifier? = null
 
+    // Identifier 也实现了 Expression 接口
     lateinit var value: Expression
 
     override fun statementNode() {
