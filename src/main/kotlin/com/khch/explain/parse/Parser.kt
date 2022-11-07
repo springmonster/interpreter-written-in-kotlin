@@ -3,6 +3,7 @@ package com.khch.explain.parse
 import com.khch.explain.ast.Ast
 import com.khch.explain.ast.Identifier
 import com.khch.explain.ast.LetStatement
+import com.khch.explain.ast.ReturnStatement
 import com.khch.explain.ast.interfaces.Statement
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
@@ -42,6 +43,10 @@ class Parser {
                 return parseLetStatement() as Statement
             }
 
+            Token.RETURN -> {
+                return parseReturnStatement() as Statement
+            }
+
             else -> null
         }
     }
@@ -64,6 +69,18 @@ class Parser {
         }
 
         return letStatement
+    }
+
+    private fun parseReturnStatement(): ReturnStatement? {
+        val statement = ReturnStatement(currentToken)
+
+        nextToken()
+
+        while (!currentTokenIs(Token.SEMICOLON)) {
+            nextToken()
+        }
+
+        return statement
     }
 
     private fun currentTokenIs(tokenType: String): Boolean {

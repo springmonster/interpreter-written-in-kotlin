@@ -1,13 +1,14 @@
 package com.khch.explain.parse
 
 import com.khch.explain.ast.LetStatement
+import com.khch.explain.ast.ReturnStatement
 import com.khch.explain.lexer.Lexer
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class ParserTest {
     @Test
-    fun parse() {
+    fun testLetStatements() {
         val input = """
         let x = 5;
         let y = 10;
@@ -40,6 +41,31 @@ internal class ParserTest {
                 assertEquals(s, nameTokenLiteral)
                 assertEquals(s, nameValue)
             }
+        }
+    }
+
+    @Test
+    fun testReturnStatement() {
+        val input = """
+        return 5;
+        return 10;
+        return 993 322;
+        """.trimIndent()
+
+        val lexer = Lexer()
+        lexer.new(input)
+
+        val parser = Parser()
+        parser.new(lexer)
+
+        val ast = parser.parseProgram()
+        val size = ast.statements.size
+
+        assertEquals(3, size)
+
+        ast.statements.forEach { statement ->
+            val returnStatement = statement as ReturnStatement
+            assertEquals("return", returnStatement.tokenLiteral())
         }
     }
 }
