@@ -134,6 +134,8 @@ internal class ParserTest {
 
         val program = parser.parseProgram();
 
+        checkParseErrors(parser)
+
         val expressionStatement = program.statements[0] as ExpressionStatement
         val identifier = expressionStatement.expression as Identifier
         assertEquals("foobar", identifier.tokenLiteral())

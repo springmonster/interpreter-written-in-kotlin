@@ -3,15 +3,28 @@ package com.khch.explain.parse
 import com.khch.explain.ast.*
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
+import com.khch.explain.token.TokenType
 
 class Parser {
     companion object {
         const val LOWEST = 1
+
+        // ==
         const val EQUALS = 2
-        const val LESSGREATER = 3
+
+        // > or <
+        const val LESS_GREATER = 3
+
+        // +
         const val SUM = 4
+
+        // *
         const val PRODUCT = 5
+
+        // -x or !x
         const val PREFIX = 6
+
+        // myFunction(x)
         const val CALL = 7
     }
 
@@ -19,15 +32,15 @@ class Parser {
     var peekToken: Token = Token()
     lateinit var lexer: Lexer
     val errors: MutableList<String> = mutableListOf()
-    private val prefixParseFnMap = mutableMapOf<String, prefixParseFn>()
-    private val infixParseFnMap = mutableMapOf<String, infixParseFn>()
+    private val prefixParseFnMap = mutableMapOf<TokenType, prefixParseFn>()
+    private val infixParseFnMap = mutableMapOf<TokenType, infixParseFn>()
 
-    private fun registerPrefix(tokenType: String, prefixParseFn: prefixParseFn) {
-        prefixParseFnMap[tokenType] = prefixParseFn
+    private fun registerPrefix(tokenType: TokenType, fn: prefixParseFn) {
+        prefixParseFnMap[tokenType] = fn
     }
 
-    private fun registerInfix(tokenType: String, infixParseFn: infixParseFn) {
-        infixParseFnMap[tokenType] = infixParseFn
+    private fun registerInfix(tokenType: TokenType, fn: infixParseFn) {
+        infixParseFnMap[tokenType] = fn
     }
 
     fun new(lexer: Lexer): Parser {
@@ -36,7 +49,7 @@ class Parser {
         nextToken()
         nextToken()
 
-//        registerPrefix(Token.IDENT, parseIdentifier())
+        registerPrefix(Token.IDENT, parseIdentifier())
 
         return this
     }
@@ -76,26 +89,28 @@ class Parser {
     }
 
     private fun parseExpressionStatement(): ExpressionStatement? {
-        val expression = ExpressionStatement(curToken)
+        val stmt = ExpressionStatement(curToken)
         val parsedExpression = parseExpression(LOWEST)
         if (parsedExpression != null) {
-            expression.expression = parsedExpression
+            stmt.expression = parsedExpression
         } else {
-            expression.expression = Identifier(token = Token(), value = "")
+            stmt.expression = Identifier(token = Token(), value = "")
         }
 
         while (nextTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
-        return expression
+        return stmt
     }
 
-    private fun parseExpression(expression: Int): Expression? {
+    private fun parseExpression(precedence: Int): Expression? {
         val isPrefixExist = prefixParseFnMap.containsKey(curToken.tokenType)
         return if (!isPrefixExist) {
             null
         } else {
-            parseIdentifier()
+            val prefixFn = prefixParseFnMap[curToken.tokenType]
+            val leftExp = prefixFn!!()
+            leftExp
         }
     }
 
@@ -149,8 +164,8 @@ class Parser {
         }
     }
 
-    private fun parseIdentifier(): Expression {
-        return Identifier(token = curToken, value = curToken.literal)
+    private fun parseIdentifier(): () -> Expression = {
+        Identifier(token = curToken, value = curToken.literal)
     }
 
     private fun peekError(tokenType: String) {

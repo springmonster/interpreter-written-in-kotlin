@@ -49,12 +49,12 @@ class Lexer {
                     readChar()
                     createToken(Token.NOT_EQ, currentChar.toString().plus(ch))
                 } else {
-                    createToken(Token.EXCLAMATION, ch)
+                    createToken(Token.BANG, ch)
                 }
             }
 
             ';' -> token = createToken(Token.SEMICOLON, ch)
-            '+' -> token = createToken(Token.ADD, ch)
+            '+' -> token = createToken(Token.PLUS, ch)
             '-' -> token = createToken(Token.MINUS, ch)
             '*' -> token = createToken(Token.ASTERISK, ch)
             '/' -> token = createToken(Token.SLASH, ch)

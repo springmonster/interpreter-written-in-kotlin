@@ -7,27 +7,27 @@ typealias TokenType = String
 class Token(var tokenType: TokenType = "", var literal: String = "") {
     companion object {
         const val IDENT: TokenType = "IDENT"
-        const val ASSIGN: TokenType = "ASSIGN"
+        const val ASSIGN: TokenType = "="
         const val INT: TokenType = "INT"
-        const val EQ: TokenType = "EQ"
-        const val NOT_EQ: TokenType = "NOT_EQ"
+        const val EQ: TokenType = "=="
+        const val NOT_EQ: TokenType = "!="
 
-        const val SEMICOLON: TokenType = "SEMICOLON"
+        const val SEMICOLON: TokenType = ";"
 
         // 操作符
-        const val ADD: TokenType = "ADD"
-        const val MINUS: TokenType = "MINUS"
-        const val ASTERISK: TokenType = "ASTERISK"
-        const val SLASH: TokenType = "SLASH"
-        const val GT: TokenType = "GT"
-        const val LT: TokenType = "LT"
+        const val PLUS: TokenType = "+"
+        const val MINUS: TokenType = "-"
+        const val ASTERISK: TokenType = "*"
+        const val SLASH: TokenType = "/"
+        const val GT: TokenType = ">"
+        const val LT: TokenType = "<"
 
-        const val LPAREN: TokenType = "LPAREN"
-        const val RPAREN: TokenType = "RPAREN"
-        const val LBRACE: TokenType = "LBRACE"
-        const val RBRACE: TokenType = "RBRACE"
-        const val COMMA: TokenType = "COMMA"
-        const val EXCLAMATION: TokenType = "EXCLAMATION"
+        const val LPAREN: TokenType = "("
+        const val RPAREN: TokenType = ")"
+        const val LBRACE: TokenType = "{"
+        const val RBRACE: TokenType = "}"
+        const val COMMA: TokenType = ","
+        const val BANG: TokenType = "!"
 
         const val LET: TokenType = "LET"
         const val FUNCTION: TokenType = "FUNCTION"
