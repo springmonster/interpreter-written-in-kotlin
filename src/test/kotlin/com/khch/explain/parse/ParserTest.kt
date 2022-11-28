@@ -1,14 +1,12 @@
 package com.khch.explain.parse
 
-import com.khch.explain.ast.ExpressionStatement
-import com.khch.explain.ast.Identifier
-import com.khch.explain.ast.LetStatement
-import com.khch.explain.ast.ReturnStatement
+import com.khch.explain.ast.*
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertTrue
 
 internal class ParserTest {
 
@@ -22,7 +20,7 @@ internal class ParserTest {
         }
 
         assertFails {
-            println("parser hs ${parser.errors.size} errors")
+            println("parser has ${parser.errors.size} errors")
         }
     }
 
@@ -154,11 +152,48 @@ internal class ParserTest {
         val parser = Parser()
         parser.new(lexer)
 
-        val program = parser.parseProgram();
+        val program = parser.parseProgram()
+
+        checkParseErrors(parser)
 
         val expressionStatement = program.statements[0] as ExpressionStatement
-        val identifier = expressionStatement.expression as Identifier
+        val identifier = expressionStatement.expression as IntegerLiteral
         assertEquals("5", identifier.tokenLiteral())
-        assertEquals("5", identifier.value)
+        assertEquals(5, identifier.value)
+    }
+
+    @Test
+    fun testParsePrefixExpressions() {
+        val prefixTests = arrayOf(
+            Triple("!5;", "!", 5),
+            Triple("-15;", "-", 15),
+        )
+
+        prefixTests.forEach {
+            val lexer = Lexer()
+            lexer.new(it.first)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val program = parser.parseProgram()
+
+            checkParseErrors(parser)
+
+            val expressionStatement = program.statements[0] as ExpressionStatement
+            val prefixExpression = expressionStatement.expression as PrefixExpression
+            assertEquals(it.second, prefixExpression.operator)
+            assertTrue(testIntegerLiteral(prefixExpression.right, it.third))
+        }
+    }
+
+    private fun testIntegerLiteral(expression: Expression?, value: Int): Boolean {
+        val integerLiteral = expression as IntegerLiteral? ?: return false
+
+        if (integerLiteral.value != value) {
+            return false
+        }
+
+        return true
     }
 }

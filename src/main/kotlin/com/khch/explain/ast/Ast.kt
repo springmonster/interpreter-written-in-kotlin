@@ -79,3 +79,32 @@ class ExpressionStatement(var token: Token? = null, var expression: Expression? 
         return expression?.string()
     }
 }
+
+class IntegerLiteral(var token: Token? = null, var value: Int? = null) : Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        return token?.literal
+    }
+}
+
+class PrefixExpression(var token: Token? = null, var operator: String? = null, var right: Expression? = null) :
+    Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        return "(" + operator + right?.string() + ")"
+    }
+}

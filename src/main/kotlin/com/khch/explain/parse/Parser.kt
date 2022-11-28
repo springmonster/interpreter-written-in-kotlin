@@ -50,6 +50,9 @@ class Parser {
         nextToken()
 
         registerPrefix(Token.IDENT, parseIdentifier())
+        registerPrefix(Token.INT, parseIntLiteral())
+        registerPrefix(Token.BANG, parsePrefixExpression())
+        registerPrefix(Token.MINUS, parsePrefixExpression())
 
         return this
     }
@@ -106,6 +109,7 @@ class Parser {
     private fun parseExpression(precedence: Int): Expression? {
         val isPrefixExist = prefixParseFnMap.containsKey(curToken.tokenType)
         return if (!isPrefixExist) {
+            errors.add("no prefix parse function for ${curToken.tokenType} found")
             null
         } else {
             val prefixFn = prefixParseFnMap[curToken.tokenType]
@@ -115,7 +119,7 @@ class Parser {
     }
 
     private fun parseLetStatement(): LetStatement? {
-        val letStatement = LetStatement(curToken)
+        val letStatement = LetStatement(token = curToken)
 
         if (!expectPeek(Token.IDENT)) {
             return null
@@ -135,7 +139,7 @@ class Parser {
     }
 
     private fun parseReturnStatement(): ReturnStatement {
-        val statement = ReturnStatement(curToken)
+        val statement = ReturnStatement(token = curToken)
 
         nextToken()
 
@@ -144,6 +148,23 @@ class Parser {
         }
 
         return statement
+    }
+
+    private fun parseIntLiteral(): () -> Expression? = {
+        val integerLiteral = IntegerLiteral(token = curToken)
+        integerLiteral.value = Integer.valueOf(curToken.literal)
+        integerLiteral
+    }
+
+    private fun parsePrefixExpression(): () -> Expression? = {
+        val prefixExpression = PrefixExpression(token = curToken)
+        prefixExpression.operator = curToken.literal
+
+        nextToken()
+
+        prefixExpression.right = parseExpression(PREFIX)
+
+        prefixExpression
     }
 
     private fun currentTokenIs(tokenType: String): Boolean {
