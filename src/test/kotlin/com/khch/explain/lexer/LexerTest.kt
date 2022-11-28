@@ -1,6 +1,8 @@
 package com.khch.explain.lexer
 
 import com.khch.explain.token.CONST_EOF
+import com.khch.explain.token.Token
+import com.khch.explain.token.TokenType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -24,10 +26,10 @@ internal class LexerTest {
         10 != 9;
         """.trimIndent()
 
-        val expected = listOf(
-            Pair("LET", "let"),
-            Pair("IDENT", "five"),
-            Pair("ASSIGN", "="),
+        val expected: List<Pair<TokenType, String>> = listOf(
+            Pair(Token.LET, "let"),
+            Pair(Token.IDENT, "five"),
+            Pair(Token.ASSIGN, "="),
             Pair("INT", "5"),
             Pair("SEMICOLON", ";"),
             Pair("LET", "let"),

@@ -1,8 +1,6 @@
 package com.khch.explain.parse
 
 import com.khch.explain.ast.*
-import com.khch.explain.ast.interfaces.Expression
-import com.khch.explain.ast.interfaces.Statement
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.token.Token
 
@@ -17,70 +15,73 @@ class Parser {
         const val CALL = 7
     }
 
-    var currentToken: Token = Token()
-    var nextToken: Token = Token()
+    var curToken: Token = Token()
+    var peekToken: Token = Token()
     lateinit var lexer: Lexer
-    private val prefixParseFnMap = mutableMapOf<String, Expression>()
-    private val infixParseFnMap = mutableMapOf<String, Expression>()
-    var ast = Ast()
+    val errors: MutableList<String> = mutableListOf()
+    private val prefixParseFnMap = mutableMapOf<String, prefixParseFn>()
+    private val infixParseFnMap = mutableMapOf<String, infixParseFn>()
 
-    private fun registerPrefix(tokenType: String, prefixParseFn: Expression) {
+    private fun registerPrefix(tokenType: String, prefixParseFn: prefixParseFn) {
         prefixParseFnMap[tokenType] = prefixParseFn
     }
 
-    private fun registerInfix(tokenType: String, infixParseFn: Expression) {
+    private fun registerInfix(tokenType: String, infixParseFn: infixParseFn) {
         infixParseFnMap[tokenType] = infixParseFn
     }
 
     fun new(lexer: Lexer): Parser {
         this.lexer = lexer
+
         nextToken()
         nextToken()
 
-        registerPrefix(Token.IDENT, parseIdentifier())
+//        registerPrefix(Token.IDENT, parseIdentifier())
 
         return this
     }
 
     private fun nextToken() {
-        currentToken = nextToken
-        nextToken = this.lexer.nextToken()
+        curToken = peekToken
+        peekToken = this.lexer.nextToken()
     }
 
-    fun parseProgram(): Ast {
-        while (currentToken.tokenType != Token.EOF) {
+    fun parseProgram(): Program {
+        val program = Program()
+
+        while (curToken.tokenType != Token.EOF) {
             val parseStatement = parseStatement()
             if (parseStatement != null) {
-                ast.statements.add(parseStatement)
+                program.statements.add(parseStatement)
             }
-            nextToken()
+            this.nextToken()
         }
-        return ast
+        return program
     }
 
     private fun parseStatement(): Statement? {
-        return when (currentToken.tokenType) {
+        return when (this.curToken.tokenType) {
             Token.LET -> {
-                return parseLetStatement() as Statement
+                return parseLetStatement()
             }
 
             Token.RETURN -> {
-                return parseReturnStatement() as Statement
+                return parseReturnStatement()
             }
 
             else -> {
-                return parseExpressionStatement() as Statement
+                return parseExpressionStatement()
             }
         }
     }
 
     private fun parseExpressionStatement(): ExpressionStatement? {
-        val expression = ExpressionStatement(currentToken)
+        val expression = ExpressionStatement(curToken)
         val parsedExpression = parseExpression(LOWEST)
         if (parsedExpression != null) {
             expression.expression = parsedExpression
         } else {
-            expression.expression = Identifier("", Token())
+            expression.expression = Identifier(token = Token(), value = "")
         }
 
         while (nextTokenIs(Token.SEMICOLON)) {
@@ -90,7 +91,7 @@ class Parser {
     }
 
     private fun parseExpression(expression: Int): Expression? {
-        val isPrefixExist = prefixParseFnMap.containsKey(currentToken.tokenType)
+        val isPrefixExist = prefixParseFnMap.containsKey(curToken.tokenType)
         return if (!isPrefixExist) {
             null
         } else {
@@ -99,15 +100,15 @@ class Parser {
     }
 
     private fun parseLetStatement(): LetStatement? {
-        val letStatement = LetStatement(currentToken)
+        val letStatement = LetStatement(curToken)
 
-        if (!expectNextTokenIs(Token.IDENT)) {
+        if (!expectPeek(Token.IDENT)) {
             return null
         }
 
-        letStatement.name = Identifier(currentToken.literal, currentToken)
+        letStatement.name = Identifier(token = curToken, value = curToken.literal)
 
-        if (!expectNextTokenIs(Token.ASSIGN)) {
+        if (!expectPeek(Token.ASSIGN)) {
             return null
         }
 
@@ -118,8 +119,8 @@ class Parser {
         return letStatement
     }
 
-    private fun parseReturnStatement(): ReturnStatement? {
-        val statement = ReturnStatement(currentToken)
+    private fun parseReturnStatement(): ReturnStatement {
+        val statement = ReturnStatement(curToken)
 
         nextToken()
 
@@ -131,24 +132,31 @@ class Parser {
     }
 
     private fun currentTokenIs(tokenType: String): Boolean {
-        return currentToken.tokenType == tokenType
+        return curToken.tokenType == tokenType
     }
 
     private fun nextTokenIs(tokenType: String): Boolean {
-        return nextToken.tokenType == tokenType
+        return peekToken.tokenType == tokenType
     }
 
-    private fun expectNextTokenIs(tokenType: String): Boolean {
+    private fun expectPeek(tokenType: String): Boolean {
         return if (nextTokenIs(tokenType)) {
             nextToken()
             true
         } else {
-            println("expect token error!")
+            peekError(tokenType)
             false
         }
     }
 
     private fun parseIdentifier(): Expression {
-        return Identifier(currentToken.literal, currentToken)
+        return Identifier(token = curToken, value = curToken.literal)
+    }
+
+    private fun peekError(tokenType: String) {
+        errors.add("expected next token to be ${tokenType}, got ${peekToken.tokenType} instead")
     }
 }
+
+typealias prefixParseFn = () -> Expression?
+typealias infixParseFn = (Expression) -> Expression?

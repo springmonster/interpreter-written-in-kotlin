@@ -1,15 +1,81 @@
 package com.khch.explain.ast
 
-import com.khch.explain.ast.interfaces.Statement
+import com.khch.explain.token.Token
 
-class Ast {
+class Program : Node {
     val statements = mutableListOf<Statement>()
 
-//    fun tokenLiteral(): String {
-//        return if (statements.isNotEmpty()) {
-//            statements[0].tokenLiteral()
-//        } else {
-//            ""
-//        }
-//    }
+    override fun tokenLiteral(): String? {
+        return if (statements.isNotEmpty()) {
+            statements[0].tokenLiteral()
+        } else {
+            ""
+        }
+    }
+
+    override fun string(): String {
+        val sb = StringBuilder()
+        statements.forEach {
+            sb.append(it.string())
+        }
+        return sb.toString()
+    }
+}
+
+// Identifier 也实现了 Expression 接口
+class LetStatement(
+    var token: Token? = null,
+    var name: Identifier? = null,
+    var value: Expression? = null
+) : Statement, Node {
+    override fun statementNode() {
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String {
+        return token?.literal + " " + name?.string() + " = " + value?.string() + ";"
+    }
+}
+
+class Identifier(var token: Token? = null, var value: String? = null) : Expression {
+    override fun expressionNode() {
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        return value
+    }
+}
+
+class ReturnStatement(var token: Token? = null, var returnValue: Expression? = null) : Statement,
+    Node {
+    override fun statementNode() {
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String {
+        return token?.literal + " " + returnValue?.string() + ";"
+    }
+}
+
+class ExpressionStatement(var token: Token? = null, var expression: Expression? = null) : Statement {
+    override fun statementNode() {
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        return expression?.string()
+    }
 }
