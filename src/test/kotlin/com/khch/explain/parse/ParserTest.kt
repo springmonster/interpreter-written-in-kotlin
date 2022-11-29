@@ -196,4 +196,71 @@ internal class ParserTest {
 
         return true
     }
+
+    @Test
+    fun testParsingInfixExpressions() {
+        data class Infix(val input: String, val leftValue: Int, val operator: String, val rightValue: Int)
+
+        val infixTests = arrayOf(
+            Infix("5 + 5;", 5, "+", 5),
+            Infix("5 - 5;", 5, "-", 5),
+            Infix("5 * 5;", 5, "*", 5),
+            Infix("5 / 5;", 5, "/", 5),
+            Infix("5 > 5;", 5, ">", 5),
+            Infix("5 < 5;", 5, "<", 5),
+            Infix("5 == 5;", 5, "==", 5),
+            Infix("5 != 5;", 5, "!=", 5),
+        )
+
+        infixTests.forEach {
+            val lexer = Lexer()
+            lexer.new(it.input)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val program = parser.parseProgram()
+
+            checkParseErrors(parser)
+
+            val expressionStatement = program.statements[0] as ExpressionStatement
+            val infixExpression = expressionStatement.expression as InfixExpression
+
+            assertTrue(testIntegerLiteral(infixExpression.left, it.leftValue))
+            assertEquals(it.operator, infixExpression.operator)
+            assertTrue(testIntegerLiteral(infixExpression.right, it.rightValue))
+        }
+    }
+
+    @Test
+    fun testOperatorPrecedenceParsing() {
+        val tests = arrayOf(
+            Pair("-a * b", "((-a) * b)"),
+            Pair("!-a", "(!(-a))"),
+            Pair("a + b + c", "((a + b) + c)"),
+            Pair("a + b - c", "((a + b) - c)"),
+            Pair("a * b * c", "((a * b) * c)"),
+            Pair("a * b / c", "((a * b) / c)"),
+            Pair("a + b / c", "(a + (b / c))"),
+            Pair("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"),
+            Pair("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"),
+            Pair("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+            Pair("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
+            Pair("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+        )
+
+        tests.forEach {
+            val lexer = Lexer()
+            lexer.new(it.first)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val program = parser.parseProgram()
+
+            checkParseErrors(parser)
+
+            assertEquals(it.second, program.string())
+        }
+    }
 }

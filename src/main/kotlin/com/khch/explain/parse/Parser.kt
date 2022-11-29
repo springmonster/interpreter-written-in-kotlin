@@ -34,6 +34,32 @@ class Parser {
     val errors: MutableList<String> = mutableListOf()
     private val prefixParseFnMap = mutableMapOf<TokenType, prefixParseFn>()
     private val infixParseFnMap = mutableMapOf<TokenType, infixParseFn>()
+    val precedence = mutableMapOf(
+        Token.EQ to EQUALS,
+        Token.NOT_EQ to EQUALS,
+        Token.LT to LESS_GREATER,
+        Token.GT to LESS_GREATER,
+        Token.PLUS to SUM,
+        Token.MINUS to SUM,
+        Token.SLASH to PRODUCT,
+        Token.ASTERISK to PRODUCT,
+    )
+
+    private fun peekPrecedence(): Int {
+        return if (precedence.containsKey(peekToken.tokenType)) {
+            precedence[peekToken.tokenType]!!
+        } else {
+            LOWEST
+        }
+    }
+
+    private fun curPrecedence(): Int {
+        return if (precedence.containsKey(curToken.tokenType)) {
+            precedence[curToken.tokenType]!!
+        } else {
+            LOWEST
+        }
+    }
 
     private fun registerPrefix(tokenType: TokenType, fn: prefixParseFn) {
         prefixParseFnMap[tokenType] = fn
@@ -49,10 +75,21 @@ class Parser {
         nextToken()
         nextToken()
 
-        registerPrefix(Token.IDENT, parseIdentifier())
-        registerPrefix(Token.INT, parseIntLiteral())
-        registerPrefix(Token.BANG, parsePrefixExpression())
-        registerPrefix(Token.MINUS, parsePrefixExpression())
+        // prefix
+        registerPrefix(Token.IDENT, ::parseIdentifier)
+        registerPrefix(Token.INT, ::parseIntLiteral)
+        registerPrefix(Token.BANG, ::parsePrefixExpression)
+        registerPrefix(Token.MINUS, ::parsePrefixExpression)
+
+        // infix
+        registerInfix(Token.PLUS, ::parseInfixExpression)
+        registerInfix(Token.MINUS, ::parseInfixExpression)
+        registerInfix(Token.SLASH, ::parseInfixExpression)
+        registerInfix(Token.ASTERISK, ::parseInfixExpression)
+        registerInfix(Token.EQ, ::parseInfixExpression)
+        registerInfix(Token.NOT_EQ, ::parseInfixExpression)
+        registerInfix(Token.LT, ::parseInfixExpression)
+        registerInfix(Token.GT, ::parseInfixExpression)
 
         return this
     }
@@ -100,7 +137,7 @@ class Parser {
             stmt.expression = Identifier(token = Token(), value = "")
         }
 
-        while (nextTokenIs(Token.SEMICOLON)) {
+        while (peekTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
         return stmt
@@ -113,7 +150,21 @@ class Parser {
             null
         } else {
             val prefixFn = prefixParseFnMap[curToken.tokenType]
-            val leftExp = prefixFn!!()
+
+            var leftExp = prefixFn?.invoke()!!
+
+            while (!peekTokenIs(Token.SEMICOLON) && precedence < peekPrecedence()) {
+                if (!infixParseFnMap.containsKey(peekToken.tokenType)) {
+                    return leftExp
+                }
+
+                val infixFn = infixParseFnMap[peekToken.tokenType]
+
+                nextToken()
+
+                leftExp = infixFn?.invoke(leftExp)!!
+            }
+
             leftExp
         }
     }
@@ -131,7 +182,7 @@ class Parser {
             return null
         }
 
-        while (!currentTokenIs(Token.SEMICOLON)) {
+        while (!curTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
 
@@ -143,20 +194,20 @@ class Parser {
 
         nextToken()
 
-        while (!currentTokenIs(Token.SEMICOLON)) {
+        while (!curTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
 
         return statement
     }
 
-    private fun parseIntLiteral(): () -> Expression? = {
+    private fun parseIntLiteral(): Expression? {
         val integerLiteral = IntegerLiteral(token = curToken)
         integerLiteral.value = Integer.valueOf(curToken.literal)
-        integerLiteral
+        return integerLiteral
     }
 
-    private fun parsePrefixExpression(): () -> Expression? = {
+    private fun parsePrefixExpression(): Expression? {
         val prefixExpression = PrefixExpression(token = curToken)
         prefixExpression.operator = curToken.literal
 
@@ -164,19 +215,32 @@ class Parser {
 
         prefixExpression.right = parseExpression(PREFIX)
 
-        prefixExpression
+        return prefixExpression
     }
 
-    private fun currentTokenIs(tokenType: String): Boolean {
+    private fun parseInfixExpression(leftExp: Expression): Expression? {
+        val infixExpression = InfixExpression(token = curToken, operator = curToken.literal, left = leftExp)
+
+        // 获取当前优先级
+        val precedence = curPrecedence()
+        // 获取下一个字符
+        nextToken()
+
+        infixExpression.right = parseExpression(precedence)
+
+        return infixExpression
+    }
+
+    private fun curTokenIs(tokenType: String): Boolean {
         return curToken.tokenType == tokenType
     }
 
-    private fun nextTokenIs(tokenType: String): Boolean {
+    private fun peekTokenIs(tokenType: String): Boolean {
         return peekToken.tokenType == tokenType
     }
 
     private fun expectPeek(tokenType: String): Boolean {
-        return if (nextTokenIs(tokenType)) {
+        return if (peekTokenIs(tokenType)) {
             nextToken()
             true
         } else {
@@ -185,8 +249,8 @@ class Parser {
         }
     }
 
-    private fun parseIdentifier(): () -> Expression = {
-        Identifier(token = curToken, value = curToken.literal)
+    private fun parseIdentifier(): Expression {
+        return Identifier(token = curToken, value = curToken.literal)
     }
 
     private fun peekError(tokenType: String) {

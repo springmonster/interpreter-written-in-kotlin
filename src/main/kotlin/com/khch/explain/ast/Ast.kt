@@ -108,3 +108,23 @@ class PrefixExpression(var token: Token? = null, var operator: String? = null, v
         return "(" + operator + right?.string() + ")"
     }
 }
+
+class InfixExpression(
+    var token: Token? = null,
+    var left: Expression? = null,
+    var operator: String? = null,
+    var right: Expression? = null
+) :
+    Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        return "(" + left?.string() + " " + operator + " " + right?.string() + ")"
+    }
+}
