@@ -324,4 +324,41 @@ internal class ParserTest {
             assertEquals(it.rightValue, right.value)
         }
     }
+
+    @Test
+    fun testOperatorPrecedenceParsing_1() {
+
+        val tests = arrayOf(
+            Pair(
+                "1 + (2 + 3) + 4",
+                "((1 + (2 + 3)) + 4)"
+            ),
+            Pair(
+                "(5 + 5) * 2",
+                "((5 + 5) * 2)"
+            ),
+            Pair(
+                "2 / (5 + 5)",
+                "(2 / (5 + 5))"
+            ),
+            Pair(
+                "-(5 + 5)",
+                "(-(5 + 5))"
+            ),
+        )
+
+        tests.forEach {
+            val lexer = Lexer()
+            lexer.new(it.first)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val program = parser.parseProgram()
+
+            checkParseErrors(parser)
+
+            assertEquals(it.second, program.string())
+        }
+    }
 }

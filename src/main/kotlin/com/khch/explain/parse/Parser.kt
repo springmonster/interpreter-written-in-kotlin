@@ -82,6 +82,7 @@ class Parser {
         registerPrefix(Token.MINUS, ::parsePrefixExpression)
         registerPrefix(Token.TRUE, ::parseBoolean)
         registerPrefix(Token.FALSE, ::parseBoolean)
+        registerPrefix(Token.LPAREN, ::parseGroupExpression)
 
         // infix
         registerInfix(Token.PLUS, ::parseInfixExpression)
@@ -237,6 +238,18 @@ class Parser {
         val booleanExpression = BooleanExpression(token = curToken)
         booleanExpression.value = curTokenIs(Token.TRUE)
         return booleanExpression
+    }
+
+    private fun parseGroupExpression(): Expression? {
+        nextToken()
+
+        val parseExpression = parseExpression(LOWEST)
+
+        if (!expectPeek(Token.RPAREN)) {
+            return null
+        }
+
+        return parseExpression
     }
 
     private fun curTokenIs(tokenType: String): Boolean {
