@@ -235,6 +235,7 @@ internal class ParserTest {
     @Test
     fun testOperatorPrecedenceParsing() {
         val tests = arrayOf(
+            Pair("1 + 2 + 3", "((1 + 2) + 3)"),
             Pair("-a * b", "((-a) * b)"),
             Pair("!-a", "(!(-a))"),
             Pair("a + b + c", "((a + b) + c)"),
@@ -247,6 +248,8 @@ internal class ParserTest {
             Pair("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
             Pair("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
             Pair("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+//            Pair("3 > 5 == false", "((3 > 5) == false)"),
+//            Pair("3 < 5 == true", "((3 < 5) == true)"),
         )
 
         tests.forEach {
@@ -261,6 +264,64 @@ internal class ParserTest {
             checkParseErrors(parser)
 
             assertEquals(it.second, program.string())
+        }
+    }
+
+    @Test
+    fun testBooleanParsing() {
+        val tests = arrayOf(
+            Pair("true", true),
+            Pair("false", false),
+        )
+
+        tests.forEach {
+            val lexer = Lexer()
+            lexer.new(it.first)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val program = parser.parseProgram()
+
+            checkParseErrors(parser)
+
+            val expressionStatement = program.statements[0] as ExpressionStatement
+            val booleanExpression = expressionStatement.expression as BooleanExpression
+
+            assertEquals(it.second, booleanExpression.value)
+        }
+    }
+
+    @Test
+    fun testBooleanInfixExpressions() {
+        data class Infix(val input: String, val leftValue: Boolean, val operator: String, val rightValue: Boolean)
+
+        val infixTests = arrayOf(
+            Infix("true == true", true, "==", true),
+            Infix("true != false", true, "!=", false),
+            Infix("false == false", false, "==", false),
+        )
+
+        infixTests.forEach {
+            val lexer = Lexer()
+            lexer.new(it.input)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val program = parser.parseProgram()
+
+            checkParseErrors(parser)
+
+            val expressionStatement = program.statements[0] as ExpressionStatement
+            val infixExpression = expressionStatement.expression as InfixExpression
+
+            val left = infixExpression.left as BooleanExpression
+            val right = infixExpression.right as BooleanExpression
+
+            assertEquals(it.leftValue, left.value)
+            assertEquals(it.operator, infixExpression.operator)
+            assertEquals(it.rightValue, right.value)
         }
     }
 }

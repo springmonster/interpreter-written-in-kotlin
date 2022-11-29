@@ -80,6 +80,8 @@ class Parser {
         registerPrefix(Token.INT, ::parseIntLiteral)
         registerPrefix(Token.BANG, ::parsePrefixExpression)
         registerPrefix(Token.MINUS, ::parsePrefixExpression)
+        registerPrefix(Token.TRUE, ::parseBoolean)
+        registerPrefix(Token.FALSE, ::parseBoolean)
 
         // infix
         registerInfix(Token.PLUS, ::parseInfixExpression)
@@ -229,6 +231,12 @@ class Parser {
         infixExpression.right = parseExpression(precedence)
 
         return infixExpression
+    }
+
+    private fun parseBoolean(): Expression? {
+        val booleanExpression = BooleanExpression(token = curToken)
+        booleanExpression.value = curTokenIs(Token.TRUE)
+        return booleanExpression
     }
 
     private fun curTokenIs(tokenType: String): Boolean {

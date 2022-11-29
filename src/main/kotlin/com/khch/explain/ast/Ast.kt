@@ -1,6 +1,7 @@
 package com.khch.explain.ast
 
 import com.khch.explain.token.Token
+import kotlin.Boolean
 
 class Program : Node {
     val statements = mutableListOf<Statement>()
@@ -126,5 +127,19 @@ class InfixExpression(
 
     override fun string(): String? {
         return "(" + left?.string() + " " + operator + " " + right?.string() + ")"
+    }
+}
+
+class BooleanExpression(var token: Token? = null, var value:Boolean? = null) : Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        return token?.literal
     }
 }
