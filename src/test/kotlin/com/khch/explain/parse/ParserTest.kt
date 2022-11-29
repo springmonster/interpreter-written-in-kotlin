@@ -361,4 +361,39 @@ internal class ParserTest {
             assertEquals(it.second, program.string())
         }
     }
+
+    @Test
+    fun testIfExpression() {
+        val input = """
+            if (x < y) { x } else { y }
+        """.trimIndent()
+
+        val lexer = Lexer()
+        lexer.new(input)
+
+        val parser = Parser()
+        parser.new(lexer)
+
+        val parseProgram = parser.parseProgram()
+        checkParseErrors(parser)
+
+        val expressionStatement = parseProgram.statements[0] as ExpressionStatement
+
+        val ifExpression = expressionStatement.expression as IfExpression
+
+        val infixExpression = ifExpression.condition as InfixExpression
+        assertEquals("x", infixExpression.left?.string())
+        assertEquals("<", infixExpression.operator)
+        assertEquals("y", infixExpression.right?.string())
+
+        val expressionStatement1 = ifExpression.consequence?.statements?.get(0) as ExpressionStatement
+        val expression = expressionStatement1.expression
+        assertEquals("x", expression?.string())
+
+        val expressionStatement2 = ifExpression.alternative?.statements?.get(0) as ExpressionStatement
+        val expression2 = expressionStatement2.expression
+        assertEquals("y", expression2?.string())
+
+        println(parseProgram.string())
+    }
 }

@@ -1,7 +1,6 @@
 package com.khch.explain.ast
 
 import com.khch.explain.token.Token
-import kotlin.Boolean
 
 class Program : Node {
     val statements = mutableListOf<Statement>()
@@ -130,7 +129,7 @@ class InfixExpression(
     }
 }
 
-class BooleanExpression(var token: Token? = null, var value:Boolean? = null) : Expression {
+class BooleanExpression(var token: Token? = null, var value: Boolean? = null) : Expression {
     override fun expressionNode() {
         TODO("Not yet implemented")
     }
@@ -141,5 +140,53 @@ class BooleanExpression(var token: Token? = null, var value:Boolean? = null) : E
 
     override fun string(): String? {
         return token?.literal
+    }
+}
+
+class IfExpression(
+    var token: Token? = null,
+    var condition: Expression? = null,
+    var consequence: BlockStatement? = null,
+    var alternative: BlockStatement? = null
+) : Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        var result = "if${condition?.string()} ${consequence?.string()}"
+
+        if (alternative != null) {
+            result += "else " + alternative?.string()
+        }
+
+        return result
+    }
+}
+
+// token是{词法单元
+
+class BlockStatement(
+    var token: Token? = null,
+    var statements: MutableList<Statement>
+) : Statement {
+    override fun statementNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        val sb = StringBuilder()
+        statements.forEach {
+            sb.append(it.string())
+        }
+        return sb.toString()
     }
 }

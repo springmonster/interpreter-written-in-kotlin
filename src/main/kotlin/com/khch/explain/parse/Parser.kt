@@ -83,6 +83,7 @@ class Parser {
         registerPrefix(Token.TRUE, ::parseBoolean)
         registerPrefix(Token.FALSE, ::parseBoolean)
         registerPrefix(Token.LPAREN, ::parseGroupExpression)
+        registerPrefix(Token.IF, ::parseIfExpression)
 
         // infix
         registerInfix(Token.PLUS, ::parseInfixExpression)
@@ -133,14 +134,9 @@ class Parser {
 
     private fun parseExpressionStatement(): ExpressionStatement? {
         val stmt = ExpressionStatement(curToken)
-        val parsedExpression = parseExpression(LOWEST)
-        if (parsedExpression != null) {
-            stmt.expression = parsedExpression
-        } else {
-            stmt.expression = Identifier(token = Token(), value = "")
-        }
+        stmt.expression = parseExpression(LOWEST)
 
-        while (peekTokenIs(Token.SEMICOLON)) {
+        if (peekTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
         return stmt
@@ -250,6 +246,56 @@ class Parser {
         }
 
         return parseExpression
+    }
+
+    private fun parseIfExpression(): Expression? {
+        val ifExpression = IfExpression(token = curToken)
+
+        if (!expectPeek(Token.LPAREN)) {
+            return null
+        }
+
+        nextToken()
+
+        ifExpression.condition = parseExpression(LOWEST)
+
+        if (!expectPeek(Token.RPAREN)) {
+            return null
+        }
+
+        if (!expectPeek(Token.LBRACE)) {
+            return null
+        }
+
+        ifExpression.consequence = parseBlockStatement()
+
+        if (peekTokenIs(Token.ELSE)) {
+            nextToken()
+
+            if (!expectPeek(Token.LBRACE)) {
+                return null
+            }
+
+            ifExpression.alternative = parseBlockStatement()
+        }
+
+        return ifExpression
+    }
+
+    private fun parseBlockStatement(): BlockStatement? {
+        val blockStatement = BlockStatement(token = curToken, statements = mutableListOf())
+
+        nextToken()
+
+        while (!curTokenIs(Token.RBRACE) && !curTokenIs(Token.EOF)) {
+            val parseStatement = parseStatement()
+            if (parseStatement != null) {
+                blockStatement.statements.add(parseStatement)
+            }
+            nextToken()
+        }
+
+        return blockStatement
     }
 
     private fun curTokenIs(tokenType: String): Boolean {
