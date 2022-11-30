@@ -1,3 +1,4 @@
+import com.khch.explain.evaluator.eval
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.parse.Parser
 import com.khch.explain.token.Token
@@ -23,7 +24,34 @@ object MONKEY {
 fun main() {
 //    lexerRepl()
 
-    parserRepl()
+//    parserRepl()
+
+    evaluatorRepl()
+}
+
+private fun evaluatorRepl() {
+    val sc = Scanner(System.`in`)
+    println("Please input something!")
+
+    while (true) {
+        val lexer = Lexer()
+        lexer.new(sc.nextLine())
+
+        val parser = Parser()
+        parser.new(lexer)
+
+        val program = parser.parseProgram()
+
+        if (parser.errors.isNotEmpty()) {
+            println(MONKEY.MONKEY_FACE)
+            println("Woops! We ran into some monkey business here!")
+            println(parser.errors.joinToString("\n"))
+            continue
+        }
+
+        val evaluated = eval(program)
+        println(evaluated?.inspect())
+    }
 }
 
 /**
