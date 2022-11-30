@@ -1,4 +1,4 @@
-# Interpreter implemented in Kotlin
+# Interpreter written in Kotlin
 
 ## Lexical analysis
 
