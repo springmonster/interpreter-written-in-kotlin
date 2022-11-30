@@ -190,3 +190,30 @@ class BlockStatement(
         return sb.toString()
     }
 }
+
+class FunctionLiteral(
+    var token: Token? = null,
+    var parameters: MutableList<Identifier>,
+    var body: BlockStatement? = null
+) : Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        val sb = StringBuilder()
+        sb.append(tokenLiteral())
+        sb.append("(")
+        val joinToString = parameters.joinToString(separator = ", ") { it ->
+            it.string().toString()
+        }
+        sb.append(joinToString)
+        sb.append(")")
+        sb.append(body?.string() ?: "")
+        return sb.toString()
+    }
+}

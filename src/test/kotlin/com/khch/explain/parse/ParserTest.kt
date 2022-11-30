@@ -396,4 +396,22 @@ internal class ParserTest {
 
         println(parseProgram.string())
     }
+
+    @Test
+    fun testFunctionLiteralParsing() {
+        val input = """
+            fn(x, y) {x + y;}
+        """.trimIndent()
+
+        val lexer = Lexer()
+        lexer.new(input)
+
+        val parser = Parser()
+        parser.new(lexer)
+
+        val parseProgram = parser.parseProgram()
+        checkParseErrors(parser)
+
+        println(parseProgram.string())
+    }
 }
