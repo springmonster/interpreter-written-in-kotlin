@@ -1,4 +1,4 @@
-# Compiler analysis implemented in Kotlin
+# Interpreter implemented in Kotlin
 
 ## Lexical analysis
 
