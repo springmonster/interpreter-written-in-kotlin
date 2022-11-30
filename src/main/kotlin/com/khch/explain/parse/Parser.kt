@@ -34,7 +34,7 @@ class Parser {
     val errors: MutableList<String> = mutableListOf()
     private val prefixParseFnMap = mutableMapOf<TokenType, prefixParseFn>()
     private val infixParseFnMap = mutableMapOf<TokenType, infixParseFn>()
-    val precedence = mutableMapOf(
+    private val precedence = mutableMapOf(
         Token.EQ to EQUALS,
         Token.NOT_EQ to EQUALS,
         Token.LT to LESS_GREATER,
@@ -43,6 +43,7 @@ class Parser {
         Token.MINUS to SUM,
         Token.SLASH to PRODUCT,
         Token.ASTERISK to PRODUCT,
+        Token.LPAREN to CALL,
     )
 
     private fun peekPrecedence(): Int {
@@ -72,9 +73,6 @@ class Parser {
     fun new(lexer: Lexer): Parser {
         this.lexer = lexer
 
-        nextToken()
-        nextToken()
-
         // prefix
         registerPrefix(Token.IDENT, ::parseIdentifier)
         registerPrefix(Token.INT, ::parseIntLiteral)
@@ -95,6 +93,10 @@ class Parser {
         registerInfix(Token.NOT_EQ, ::parseInfixExpression)
         registerInfix(Token.LT, ::parseInfixExpression)
         registerInfix(Token.GT, ::parseInfixExpression)
+        registerInfix(Token.LPAREN, ::parseCallExpression)
+
+        nextToken()
+        nextToken()
 
         return this
     }
@@ -118,7 +120,7 @@ class Parser {
     }
 
     private fun parseStatement(): Statement? {
-        return when (this.curToken.tokenType) {
+        when (this.curToken.tokenType) {
             Token.LET -> {
                 return parseLetStatement()
             }
@@ -151,7 +153,7 @@ class Parser {
         } else {
             val prefixFn = prefixParseFnMap[curToken.tokenType]
 
-            var leftExp = prefixFn?.invoke()!!
+            var leftExp = prefixFn?.invoke()
 
             while (!peekTokenIs(Token.SEMICOLON) && precedence < peekPrecedence()) {
                 if (!infixParseFnMap.containsKey(peekToken.tokenType)) {
@@ -162,7 +164,7 @@ class Parser {
 
                 nextToken()
 
-                leftExp = infixFn?.invoke(leftExp)!!
+                leftExp = infixFn?.invoke(leftExp!!)
             }
 
             leftExp
@@ -182,7 +184,11 @@ class Parser {
             return null
         }
 
-        while (!curTokenIs(Token.SEMICOLON)) {
+        nextToken()
+
+        letStatement.value = parseExpression(LOWEST)
+
+        if (peekTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
 
@@ -194,7 +200,9 @@ class Parser {
 
         nextToken()
 
-        while (!curTokenIs(Token.SEMICOLON)) {
+        statement.returnValue = parseExpression(LOWEST)
+
+        if (peekTokenIs(Token.SEMICOLON)) {
             nextToken()
         }
 
@@ -229,6 +237,40 @@ class Parser {
         infixExpression.right = parseExpression(precedence)
 
         return infixExpression
+    }
+
+    private fun parseCallExpression(functionExpression: Expression): Expression? {
+        val callExpression =
+            CallExpression(token = curToken, function = functionExpression, arguments = mutableListOf())
+        callExpression.arguments = parseCallArguments()
+        return callExpression
+    }
+
+    private fun parseCallArguments(): MutableList<Expression> {
+        val args = mutableListOf<Expression>()
+
+        if (peekTokenIs(Token.RPAREN)) {
+            nextToken()
+            return args
+        }
+
+        nextToken()
+
+        val parseExpression = parseExpression(LOWEST)!!
+        args.add(parseExpression)
+
+        while (peekTokenIs(Token.COMMA)) {
+            nextToken()
+            nextToken()
+            val parseExpression1 = parseExpression(LOWEST)!!
+            args.add(parseExpression1)
+        }
+
+        if (!expectPeek(Token.RPAREN)) {
+            return mutableListOf()
+        }
+
+        return args
     }
 
     private fun parseBoolean(): Expression? {
@@ -317,8 +359,8 @@ class Parser {
             nextToken()
             nextToken()
 
-            val identifier = Identifier(token = curToken, value = curToken.literal)
-            identifiers.add(identifier)
+            val identifier1 = Identifier(token = curToken, value = curToken.literal)
+            identifiers.add(identifier1)
         }
 
         if (!expectPeek(Token.RPAREN)) {

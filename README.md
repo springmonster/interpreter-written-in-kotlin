@@ -2,4 +2,12 @@
 
 ## Lexical analysis
 
+- completed
+
 ## Parser analysis
+
+- completed
+
+## Evaluation
+
+- doing

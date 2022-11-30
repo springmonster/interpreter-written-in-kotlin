@@ -217,3 +217,31 @@ class FunctionLiteral(
         return sb.toString()
     }
 }
+
+class CallExpression(
+    var token: Token? = null,
+    var function: Expression? = null,
+    var arguments: MutableList<Expression>
+) : Expression {
+    override fun expressionNode() {
+        TODO("Not yet implemented")
+    }
+
+    override fun tokenLiteral(): String? {
+        return token?.literal
+    }
+
+    override fun string(): String? {
+        val sb = StringBuilder()
+
+        sb.append(function?.string())
+        sb.append("(")
+        val joinToString = arguments.joinToString(separator = ", ") {
+            it.string().toString()
+        }
+        sb.append(joinToString)
+        sb.append(")")
+
+        return sb.toString()
+    }
+}

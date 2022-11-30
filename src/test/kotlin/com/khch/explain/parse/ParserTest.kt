@@ -130,7 +130,7 @@ internal class ParserTest {
         val parser = Parser()
         parser.new(lexer)
 
-        val program = parser.parseProgram();
+        val program = parser.parseProgram()
 
         checkParseErrors(parser)
 
@@ -413,5 +413,56 @@ internal class ParserTest {
         checkParseErrors(parser)
 
         println(parseProgram.string())
+    }
+
+    @Test
+    fun testFunctionParameterParsing() {
+        val inputs = arrayOf(
+            "fn() {};",
+            "fn(x) {};",
+            "fn(x, y, z) {};"
+        )
+
+        inputs.forEach {
+            val lexer = Lexer()
+            lexer.new(it)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val parseProgram = parser.parseProgram()
+            checkParseErrors(parser)
+
+            val expressionStatement = parseProgram.statements[0] as ExpressionStatement
+            val functionLiteral = expressionStatement.expression as FunctionLiteral
+
+            functionLiteral.parameters.forEach { param ->
+                print(param.string() + " ")
+            }
+            println()
+        }
+    }
+
+    @Test
+    fun testCallExpressionParsing() {
+        val inputs = arrayOf(
+            """add(1, 2 * 3, 4 + 5);""",
+            """a + add(b * c) + d""",
+            """add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))""",
+            """add(a + b + c * d / f + g)"""
+        )
+
+        inputs.forEach {
+            val lexer = Lexer()
+            lexer.new(it)
+
+            val parser = Parser()
+            parser.new(lexer)
+
+            val parseProgram = parser.parseProgram()
+            checkParseErrors(parser)
+
+            println(parseProgram.string())
+        }
     }
 }
