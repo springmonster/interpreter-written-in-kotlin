@@ -1,10 +1,7 @@
 package com.khch.explain.evaluator
 
 import com.khch.explain.lexer.Lexer
-import com.khch.explain.`object`.BooleanObj
-import com.khch.explain.`object`.ErrorObj
-import com.khch.explain.`object`.IntegerObj
-import com.khch.explain.`object`.Object
+import com.khch.explain.`object`.*
 import com.khch.explain.parse.Parser
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -21,7 +18,7 @@ internal class EvaluatorTest {
 
         val program = parser.parseProgram()
 
-        return eval(program)
+        return eval(program, Environment().newEnvironment())
     }
 
     private fun testIntegerObject(expected: Int, obj: Object?): Boolean {
@@ -178,6 +175,7 @@ internal class EvaluatorTest {
                 }
             """, "unknown operator: BOOLEAN + BOOLEAN"
             ),
+            Pair("foobar", "identifier not found: foobar"),
         )
 
         tests.forEach {
@@ -187,6 +185,21 @@ internal class EvaluatorTest {
             } else {
                 assertFails { "no errors??? $testEval" }
             }
+        }
+    }
+
+    @Test
+    fun testLetStatements() {
+        val tests = arrayOf(
+            Pair("let a = 5;a;", 5),
+            Pair("let a = 5 * 5;a;", 25),
+            Pair("let a = 5; let b = a; b;", 5),
+            Pair("let a = 5; let b = a; let c = a + b + 5;c;", 15),
+        )
+
+        tests.forEach {
+            val testEval = testEval(it.first)
+            testIntegerObject(it.second, testEval)
         }
     }
 }

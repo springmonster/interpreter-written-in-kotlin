@@ -1,5 +1,6 @@
 import com.khch.explain.evaluator.eval
 import com.khch.explain.lexer.Lexer
+import com.khch.explain.`object`.Environment
 import com.khch.explain.parse.Parser
 import com.khch.explain.token.Token
 import java.util.*
@@ -49,7 +50,7 @@ private fun evaluatorRepl() {
             continue
         }
 
-        val evaluated = eval(program)
+        val evaluated = eval(program, Environment().newEnvironment())
         println(evaluated?.inspect())
     }
 }

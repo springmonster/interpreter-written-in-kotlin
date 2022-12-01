@@ -20,14 +20,14 @@ fun isError(eval: Object?): Boolean {
     return false
 }
 
-fun eval(node: Node?): Object? {
+fun eval(node: Node?, env: Environment): Object? {
     return when (node) {
         is Program -> {
-            evalProgram(node.statements)
+            evalProgram(node.statements, env)
         }
 
         is ExpressionStatement -> {
-            eval(node.expression)
+            eval(node.expression, env)
         }
 
         is IntegerLiteral -> {
@@ -39,7 +39,7 @@ fun eval(node: Node?): Object? {
         }
 
         is PrefixExpression -> {
-            val eval = eval(node.right)
+            val eval = eval(node.right, env)
             if (isError(eval)) {
                 eval
             }
@@ -47,12 +47,12 @@ fun eval(node: Node?): Object? {
         }
 
         is InfixExpression -> {
-            val left = eval(node.left)
+            val left = eval(node.left, env)
             if (isError(left)) {
                 left
             }
 
-            val right = eval(node.right)
+            val right = eval(node.right, env)
             if (isError(right)) {
                 right
             }
@@ -60,29 +60,45 @@ fun eval(node: Node?): Object? {
         }
 
         is BlockStatement -> {
-            evalBlockStatement(node.statements)
+            evalBlockStatement(node.statements, env)
         }
 
         is IfExpression -> {
-            evalIfExpression(node)
+            evalIfExpression(node, env)
         }
 
         is ReturnStatement -> {
-            val eval = eval(node.returnValue)
+            val eval = eval(node.returnValue, env)
             if (isError(eval)) {
                 eval
             }
             ReturnObj(value = eval)
         }
 
+        is LetStatement -> {
+            val eval = eval(node.value, env)
+            if (isError(eval)) {
+                eval
+            }
+            env.set(node.name?.value ?: "", eval ?: NULL)
+        }
+
+        is Identifier -> {
+            evalIdentifier(node, env)
+        }
+
         else -> null
     }
 }
 
-fun evalBlockStatement(stmts: MutableList<Statement>): Object? {
+fun evalIdentifier(node: Identifier, env: Environment): Object? {
+    return env.get(node.value ?: "")
+}
+
+fun evalBlockStatement(stmts: MutableList<Statement>, env: Environment): Object? {
     var result: Object? = null
     for (stmt in stmts) {
-        result = eval(stmt)
+        result = eval(stmt, env)
 
         if (result != null && (result.type() == ObjectTypeStr.RETURN_OBJ ||
                     result.type() == ObjectTypeStr.NULL_OBJ)
@@ -93,17 +109,17 @@ fun evalBlockStatement(stmts: MutableList<Statement>): Object? {
     return result
 }
 
-fun evalIfExpression(ifExpression: IfExpression): Object? {
-    val condition = eval(ifExpression.condition)
+fun evalIfExpression(ifExpression: IfExpression, env: Environment): Object? {
+    val condition = eval(ifExpression.condition, env)
 
     if (isError(condition)) {
         return condition
     }
 
     return if (isTruthy(condition)) {
-        eval(ifExpression.consequence)
+        eval(ifExpression.consequence, env)
     } else if (ifExpression.alternative != null) {
-        eval(ifExpression.alternative)
+        eval(ifExpression.alternative, env)
     } else {
         null
     }
@@ -187,10 +203,10 @@ fun evalIntegerInfixExpression(operator: String?, left: IntegerObj?, right: Inte
     }
 }
 
-fun evalProgram(stmts: MutableList<Statement>): Object? {
+fun evalProgram(stmts: MutableList<Statement>, env: Environment): Object? {
     var result: Object? = null
     for (stmt in stmts) {
-        result = eval(stmt)
+        result = eval(stmt, env)
 
         if (result is ReturnObj) {
             return result.value
