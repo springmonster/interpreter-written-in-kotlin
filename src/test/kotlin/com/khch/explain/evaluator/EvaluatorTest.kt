@@ -6,6 +6,7 @@ import com.khch.explain.parse.Parser
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertTrue
 
 internal class EvaluatorTest {
 
@@ -195,6 +196,54 @@ internal class EvaluatorTest {
             Pair("let a = 5 * 5;a;", 25),
             Pair("let a = 5; let b = a; b;", 5),
             Pair("let a = 5; let b = a; let c = a + b + 5;c;", 15),
+        )
+
+        tests.forEach {
+            val testEval = testEval(it.first)
+            testIntegerObject(it.second, testEval)
+        }
+    }
+
+    @Test
+    fun testFunctionObject() {
+        val input = """
+            fn(x) { x + 2; };
+        """.trimIndent()
+
+        val eval = testEval(input)
+
+        assertTrue(eval is FunctionObj)
+
+        val function = eval as FunctionObj
+
+        if (function.parameters.size != 1) {
+            assertFails {
+                "wrong number of parameters: ${function.parameters.size}"
+            }
+        }
+
+        if (function.parameters[0].string() != "x") {
+            assertFails {
+                "parameter is not 'x'"
+            }
+        }
+
+        val expectedBody = "(x + 2)"
+
+        assertEquals(expectedBody, function.body.string())
+
+        println(eval.inspect())
+    }
+
+    @Test
+    fun testFunctionApplication() {
+        val tests = arrayOf(
+            Pair("let identity = fn(x) { x; }; identity(5);", 5),
+            Pair("let identity = fn(x) { return x; }; identity(5);", 5),
+            Pair("let double = fn(x) { x * 2; }; double(5);", 10),
+            Pair("let add = fn(x, y) { x + y; }; add(5, 5);", 10),
+            Pair("let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20),
+            Pair("fn(x) { x; }(5)", 5),
         )
 
         tests.forEach {

@@ -87,8 +87,72 @@ fun eval(node: Node?, env: Environment): Object? {
             evalIdentifier(node, env)
         }
 
+        is FunctionLiteral -> {
+            val params = node.parameters
+            val body = node.body
+            FunctionObj(parameters = params, body = body!!, env = env)
+        }
+
+        is CallExpression -> {
+            val function = eval(node.function, env)
+
+            if (isError(function)) {
+                function
+            }
+
+            val args = evalExpressions(node.arguments, env)
+
+            if (args.size == 1 && isError(args[0])) {
+                return args[0]
+            }
+
+            return applyFunction(function, args)
+        }
+
         else -> null
     }
+}
+
+fun applyFunction(function: Object?, args: MutableList<Object>): Object? {
+    if (!(function is FunctionObj)) {
+        return newError("not a function: ${function?.type()}")
+    }
+
+    val extendedEnv = extendFunctionEvn(function, args)
+    val evaluated = eval(function.body, extendedEnv)
+    return unwrapReturnValue(evaluated)
+}
+
+fun unwrapReturnValue(evaluated: Object?): Object? {
+    if (evaluated is ReturnObj) {
+        return evaluated.value
+    }
+
+    return evaluated
+}
+
+fun extendFunctionEvn(fn: FunctionObj, args: MutableList<Object>): Environment {
+    val env = Environment().newEnclosedEnvironment(fn.env)
+
+    fn.parameters.forEachIndexed { index, identifier ->
+        env.set(identifier.value!!, args[index])
+    }
+
+    return env
+}
+
+fun evalExpressions(exps: MutableList<Expression>, env: Environment): MutableList<Object> {
+    val result = mutableListOf<Object>()
+    exps.forEach {
+        val eval = eval(it, env)
+
+        if (isError(eval)) {
+            return mutableListOf(eval!!)
+        }
+
+        result.add(eval!!)
+    }
+    return result
 }
 
 fun evalIdentifier(node: Identifier, env: Environment): Object? {

@@ -1,5 +1,8 @@
 package com.khch.explain.`object`
 
+import com.khch.explain.ast.BlockStatement
+import com.khch.explain.ast.Identifier
+
 typealias ObjectType = String
 
 object ObjectTypeStr {
@@ -8,6 +11,7 @@ object ObjectTypeStr {
     const val NULL_OBJ = "NULL"
     const val RETURN_OBJ = "RETURN"
     const val ERROR_OBJ = "ERROR"
+    const val FUNCTION_OBJ = "FUNCTION"
 }
 
 interface Object {
@@ -65,5 +69,30 @@ class ErrorObj(var message: String? = null) : Object {
 
     override fun inspect(): String {
         return ("ERROR: $message")
+    }
+}
+
+class FunctionObj(
+    var parameters: MutableList<Identifier>,
+    var body: BlockStatement,
+    var env: Environment
+) : Object {
+    override fun type(): ObjectType {
+        return ObjectTypeStr.FUNCTION_OBJ
+    }
+
+    override fun inspect(): String {
+        val sb = StringBuilder()
+        sb.append("fn")
+        sb.append("(")
+        val joinToString = parameters.joinToString(separator = ", ") { it ->
+            it.string().toString()
+        }
+        sb.append(joinToString)
+        sb.append(")")
+        sb.append("{")
+        sb.append(body?.string() ?: "")
+        sb.append("}")
+        return sb.toString()
     }
 }
