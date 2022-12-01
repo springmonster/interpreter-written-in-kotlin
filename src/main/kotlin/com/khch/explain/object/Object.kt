@@ -6,6 +6,7 @@ object ObjectTypeStr {
     const val INTEGER_OBJ = "INTEGER"
     const val BOOLEAN_OBJ = "BOOLEAN"
     const val NULL_OBJ = "NULL"
+    const val RETURN_OBJ = "RETURN"
 }
 
 interface Object {
@@ -43,5 +44,15 @@ class NullObj : Object {
 
     override fun inspect(): String {
         return "null"
+    }
+}
+
+class ReturnObj(var value: Object? = null) : Object {
+    override fun type(): ObjectType {
+        return ObjectTypeStr.RETURN_OBJ
+    }
+
+    override fun inspect(): String {
+        return value?.inspect() ?: ""
     }
 }

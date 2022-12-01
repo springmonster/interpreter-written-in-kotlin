@@ -69,7 +69,7 @@ internal class ParserTest {
         val input = """
         return 5;
         return 10;
-        return 993 322;
+        return 993322;
         """.trimIndent()
 
         val lexer = Lexer()
