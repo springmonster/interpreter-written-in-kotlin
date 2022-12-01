@@ -5,11 +5,19 @@ import com.khch.explain.evaluator.Eval.FALSE
 import com.khch.explain.evaluator.Eval.NULL
 import com.khch.explain.evaluator.Eval.TRUE
 import com.khch.explain.`object`.*
+import com.khch.explain.`object`.ObjectTypeStr.ERROR_OBJ
 
 object Eval {
     val TRUE = BooleanObj(true)
     val FALSE = BooleanObj(false)
     val NULL = NullObj()
+}
+
+fun isError(eval: Object?): Boolean {
+    if (eval != null) {
+        return eval.type() == ERROR_OBJ
+    }
+    return false
 }
 
 fun eval(node: Node?): Object? {
@@ -31,11 +39,24 @@ fun eval(node: Node?): Object? {
         }
 
         is PrefixExpression -> {
-            evalPrefixExpression(node.operator, eval(node.right))
+            val eval = eval(node.right)
+            if (isError(eval)) {
+                eval
+            }
+            evalPrefixExpression(node.operator, eval)
         }
 
         is InfixExpression -> {
-            evalInfixExpression(node.operator, eval(node.left), eval(node.right))
+            val left = eval(node.left)
+            if (isError(left)) {
+                left
+            }
+
+            val right = eval(node.right)
+            if (isError(right)) {
+                right
+            }
+            evalInfixExpression(node.operator, left, right)
         }
 
         is BlockStatement -> {
@@ -47,7 +68,11 @@ fun eval(node: Node?): Object? {
         }
 
         is ReturnStatement -> {
-            ReturnObj(value = eval(node.returnValue))
+            val eval = eval(node.returnValue)
+            if (isError(eval)) {
+                eval
+            }
+            ReturnObj(value = eval)
         }
 
         else -> null
@@ -59,7 +84,9 @@ fun evalBlockStatement(stmts: MutableList<Statement>): Object? {
     for (stmt in stmts) {
         result = eval(stmt)
 
-        if (result != null && result.type() == ObjectTypeStr.RETURN_OBJ) {
+        if (result != null && (result.type() == ObjectTypeStr.RETURN_OBJ ||
+                    result.type() == ObjectTypeStr.NULL_OBJ)
+        ) {
             return result
         }
     }
@@ -69,12 +96,16 @@ fun evalBlockStatement(stmts: MutableList<Statement>): Object? {
 fun evalIfExpression(ifExpression: IfExpression): Object? {
     val condition = eval(ifExpression.condition)
 
-    if (isTruthy(condition)) {
-        return eval(ifExpression.consequence)
+    if (isError(condition)) {
+        return condition
+    }
+
+    return if (isTruthy(condition)) {
+        eval(ifExpression.consequence)
     } else if (ifExpression.alternative != null) {
-        return eval(ifExpression.alternative)
+        eval(ifExpression.alternative)
     } else {
-        return null
+        null
     }
 }
 
@@ -99,6 +130,9 @@ fun isTruthy(obj: Object?): Boolean {
 }
 
 fun evalInfixExpression(operator: String?, left: Object?, right: Object?): Object? {
+    if (left?.type() != right?.type()) {
+        return newError("type mismatch: ${left?.type()} $operator ${right?.type()}")
+    }
     if (left?.type() == ObjectTypeStr.INTEGER_OBJ && right?.type() == ObjectTypeStr.INTEGER_OBJ) {
         return evalIntegerInfixExpression(operator, left as IntegerObj, right as IntegerObj)
     }
@@ -108,7 +142,7 @@ fun evalInfixExpression(operator: String?, left: Object?, right: Object?): Objec
     if (operator == "!=") {
         return nativeBoolToBooleanObj(left != right)
     }
-    return null
+    return newError("unknown operator: ${left?.type()} $operator ${right?.type()}")
 }
 
 fun evalIntegerInfixExpression(operator: String?, left: IntegerObj?, right: IntegerObj?): Object? {
@@ -148,7 +182,7 @@ fun evalIntegerInfixExpression(operator: String?, left: IntegerObj?, right: Inte
         }
 
         else -> {
-            return null
+            return return newError("unknown operator: ${left?.type()} $operator ${right?.type()}")
         }
     }
 }
@@ -160,6 +194,9 @@ fun evalProgram(stmts: MutableList<Statement>): Object? {
 
         if (result is ReturnObj) {
             return result.value
+        }
+        if (result is ErrorObj) {
+            return result
         }
     }
     return result
@@ -173,13 +210,15 @@ fun evalPrefixExpression(operator: String?, right: Object?): Object? {
     return when (operator) {
         "!" -> evalBangOperatorExpression(right)
         "-" -> evalMinusOperatorExpression(right)
-        else -> null
+        else -> {
+            newError("unknown operator: $operator$right.type()")
+        }
     }
 }
 
 fun evalMinusOperatorExpression(right: Object?): Object? {
     if (right?.type() != ObjectTypeStr.INTEGER_OBJ) {
-        return null
+        return newError("unknown operator: -${right?.type()}")
     }
     val integerObj = right as IntegerObj
     return IntegerObj(value = -(integerObj.value)!!)
@@ -192,4 +231,8 @@ fun evalBangOperatorExpression(right: Object?): Object? {
         NULL -> TRUE
         else -> FALSE
     }
+}
+
+fun newError(msg: String): ErrorObj {
+    return ErrorObj(message = msg)
 }

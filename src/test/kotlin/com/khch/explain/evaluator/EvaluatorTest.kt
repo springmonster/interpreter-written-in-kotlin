@@ -2,10 +2,13 @@ package com.khch.explain.evaluator
 
 import com.khch.explain.lexer.Lexer
 import com.khch.explain.`object`.BooleanObj
+import com.khch.explain.`object`.ErrorObj
 import com.khch.explain.`object`.IntegerObj
 import com.khch.explain.`object`.Object
 import com.khch.explain.parse.Parser
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 internal class EvaluatorTest {
 
@@ -153,6 +156,37 @@ internal class EvaluatorTest {
         tests.forEach {
             val testEval = testEval(it.first)
             testIntegerObject(it.second, testEval)
+        }
+    }
+
+    @Test
+    fun testErrorHandling() {
+        val tests = arrayOf(
+            Pair("5 + true", "type mismatch: INTEGER + BOOLEAN"),
+            Pair("5 + true;5;", "type mismatch: INTEGER + BOOLEAN"),
+            Pair("-true", "unknown operator: -BOOLEAN"),
+            Pair("true + false", "unknown operator: BOOLEAN + BOOLEAN"),
+            Pair("5; true + false; 5", "unknown operator: BOOLEAN + BOOLEAN"),
+            Pair("if (10 > 1) { true + false; }", "unknown operator: BOOLEAN + BOOLEAN"),
+            Pair(
+                """
+                if (10 > 1) {
+                    if (10 > 1) {
+                        return true + false;
+                    }
+                    return 1;
+                }
+            """, "unknown operator: BOOLEAN + BOOLEAN"
+            ),
+        )
+
+        tests.forEach {
+            val testEval = testEval(it.first)
+            if (testEval is ErrorObj) {
+                assertEquals(it.second, testEval.message)
+            } else {
+                assertFails { "no errors??? $testEval" }
+            }
         }
     }
 }

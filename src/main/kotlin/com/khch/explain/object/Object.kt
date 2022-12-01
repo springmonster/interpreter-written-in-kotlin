@@ -7,6 +7,7 @@ object ObjectTypeStr {
     const val BOOLEAN_OBJ = "BOOLEAN"
     const val NULL_OBJ = "NULL"
     const val RETURN_OBJ = "RETURN"
+    const val ERROR_OBJ = "ERROR"
 }
 
 interface Object {
@@ -54,5 +55,15 @@ class ReturnObj(var value: Object? = null) : Object {
 
     override fun inspect(): String {
         return value?.inspect() ?: ""
+    }
+}
+
+class ErrorObj(var message: String? = null) : Object {
+    override fun type(): ObjectType {
+        return ObjectTypeStr.ERROR_OBJ
+    }
+
+    override fun inspect(): String {
+        return ("ERROR: $message")
     }
 }
